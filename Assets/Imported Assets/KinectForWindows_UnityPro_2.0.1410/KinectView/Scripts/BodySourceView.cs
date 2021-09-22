@@ -1,13 +1,22 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Kinect = Windows.Kinect;
 
 public class BodySourceView : MonoBehaviour {
+  public Transform shoulderLIkTarget;
+  public Transform handLIkTarget;
+  public Transform shoulderRIkTarget;
+  public Transform handRIkTarget;
+  public Animator anim;
+
   public GameObject bodyObject;
 
   public Material BoneMaterial;
   public GameObject BodySourceManager;
+
+  public Quaternion[] jointRotations;
 
   private Dictionary<ulong, GameObject> _Bodies = new Dictionary<ulong, GameObject>();
   private BodySourceManager _BodyManager;
@@ -23,7 +32,17 @@ public class BodySourceView : MonoBehaviour {
     { Kinect.JointType.SpineBase, Kinect.JointType.SpineMid }, { Kinect.JointType.SpineMid, Kinect.JointType.SpineShoulder }, { Kinect.JointType.SpineShoulder, Kinect.JointType.Neck }, { Kinect.JointType.Neck, Kinect.JointType.Head },
   };
 
+  private float timer;
+  void Start() {
+    timer = 0f;
+    jointRotations = new Quaternion[30];
+  }
+
   void Update() {
+    // oscillate for demo
+    timer += Time.deltaTime;
+    anim.SetFloat("param", Mathf.Sin(timer));
+
     if (BodySourceManager == null) {
       return;
     }
@@ -71,10 +90,22 @@ public class BodySourceView : MonoBehaviour {
           // instants a new body obj, I prob wont need, since I'm mapping to existing body 
           _Bodies[body.TrackingId] = CreateBodyObject(body.TrackingId);
         }
+        GameObject bb = _Bodies[body.TrackingId];
 
         /// updates positions of joints of body obj
-        RefreshBodyObject(body, _Bodies[body.TrackingId]);
-        WORKRefreshBodyObject(body, _Bodies[body.TrackingId]);
+        RefreshBodyObject(body, bb);
+
+        // WORKIN TEST
+
+        Transform shoulderLObj = bb.transform.Find(Kinect.JointType.ShoulderLeft.ToString()).transform;
+        Transform elbowLObj = bb.transform.Find(Kinect.JointType.ElbowLeft.ToString()).transform;
+        Transform wristLObj = bb.transform.Find(Kinect.JointType.WristLeft.ToString()).transform;
+
+        Quaternion shoulderLRot = Quaternion.LookRotation(elbowLObj.position - shoulderLObj.position);
+        Quaternion elbowLRot = Quaternion.LookRotation(wristLObj.position - elbowLObj.position);
+
+        // driving puppet
+
       }
     }
   }
@@ -107,44 +138,47 @@ public class BodySourceView : MonoBehaviour {
         targetJoint = body.Joints[_BoneMap[jt]];
       }
 
+      /// puppet avateering work
+      // RIGHT SOURCE TO LEFT TARGET
+      Kinect.Joint handRSrc = body.Joints[Kinect.JointType.HandRight];
+      Kinect.Joint shoulderRSrc = body.Joints[Kinect.JointType.ShoulderRight];
+
+      Vector3 handRSrcPos = GetVector3FromJoint(handRSrc);
+      Vector3 shoulderRSrcPos = GetVector3FromJoint(shoulderRSrc);
+      Vector3 diffR = handRSrcPos - shoulderRSrcPos;
+
+      handLIkTarget.position = shoulderLIkTarget.position + (diffR);
+
+      // LEFT SOURCE TO RIGHT TARGET
+      Kinect.Joint handLSrc = body.Joints[Kinect.JointType.HandLeft];
+      Kinect.Joint shoulderLSrc = body.Joints[Kinect.JointType.ShoulderLeft];
+
+      Vector3 handLSrcPos = GetVector3FromJoint(handLSrc);
+      Vector3 shoulderLSrcPos = GetVector3FromJoint(shoulderLSrc);
+      Vector3 diffL = handLSrcPos - shoulderLSrcPos;
+
+      handRIkTarget.position = shoulderRIkTarget.position + (diffL);
+
+      /// end puppet avateering
+
+      // position the joints of the actual driven body
       Transform jointObj = bodyGuy.transform.Find(jt.ToString()).transform;
       jointObj.localPosition = GetVector3FromJoint(sourceJoint);
 
       LineRenderer lr = jointObj.GetComponent<LineRenderer>();
+
       if (targetJoint.HasValue) {
+        // source joint look dir
+        Vector3 lookDir = GetVector3FromJoint(targetJoint.Value) - GetVector3FromJoint(sourceJoint);
+
+        jointRotations[(int) jt] = Quaternion.LookRotation(GetVector3FromJoint(targetJoint.Value) - GetVector3FromJoint(sourceJoint));
+
         lr.SetPosition(0, jointObj.localPosition);
-        lr.SetPosition(1, GetVector3FromJoint(targetJoint.Value));
+        lr.SetPosition(1, jointObj.localPosition + lookDir.normalized);
         lr.SetColors(GetColorForState(sourceJoint.TrackingState), GetColorForState(targetJoint.Value.TrackingState));
       } else {
         lr.enabled = false;
       }
-    }
-  }
-
-  private void WORKRefreshBodyObject(Kinect.Body body, GameObject _thing) {
-    for (Kinect.JointType jt = Kinect.JointType.SpineBase; jt <= Kinect.JointType.ThumbRight; jt++) {
-      Kinect.Joint sourceJoint = body.Joints[jt];
-      // Kinect.Joint? targetJoint = null;
-
-      // if (_BoneMap.ContainsKey(jt)) {
-      //   targetJoint = body.Joints[_BoneMap[jt]];
-      // }
-
-      Debug.Log(sourceJoint);
-      Transform jointObj = GameObject.Find(jt.ToString()).transform;
-      Debug.Log(jointObj);
-      Vector3 camPoint = GetVector3FromJoint(sourceJoint);
-      jointObj.localPosition = jointObj.parent.InverseTransformPoint(camPoint);
-      Debug.Log("Set position");
-
-      // LineRenderer lr = jointObj.GetComponent<LineRenderer>();
-      // if (targetJoint.HasValue) {
-      //   lr.SetPosition(0, jointObj.localPosition);
-      //   lr.SetPosition(1, GetVector3FromJoint(targetJoint.Value));
-      //   lr.SetColors(GetColorForState(sourceJoint.TrackingState), GetColorForState(targetJoint.Value.TrackingState));
-      // } else {
-      //   lr.enabled = false;
-      // }
     }
   }
 
