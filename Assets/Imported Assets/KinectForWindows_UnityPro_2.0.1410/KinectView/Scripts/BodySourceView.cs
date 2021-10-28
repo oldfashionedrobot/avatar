@@ -5,11 +5,13 @@ using UnityEngine;
 using Kinect = Windows.Kinect;
 
 public class BodySourceView : MonoBehaviour {
-  public Transform shoulderLIkTarget;
-  public Transform handLIkTarget;
-  public Transform shoulderRIkTarget;
-  public Transform handRIkTarget;
-  public Animator anim;
+  /// TEST WORKING
+  public Vector3 leftShoulderAim;
+  public Vector3 rightShoulderAim;
+  public Vector3 leftElbowAim;
+  public Vector3 rightElbowAim;
+
+  /// END TEST WORKING
 
   public GameObject bodyObject;
 
@@ -32,17 +34,11 @@ public class BodySourceView : MonoBehaviour {
     { Kinect.JointType.SpineBase, Kinect.JointType.SpineMid }, { Kinect.JointType.SpineMid, Kinect.JointType.SpineShoulder }, { Kinect.JointType.SpineShoulder, Kinect.JointType.Neck }, { Kinect.JointType.Neck, Kinect.JointType.Head },
   };
 
-  private float timer;
   void Start() {
-    timer = 0f;
     jointRotations = new Quaternion[30];
   }
 
   void Update() {
-    // oscillate for demo
-    timer += Time.deltaTime;
-    anim.SetFloat("param", Mathf.Sin(timer));
-
     if (BodySourceManager == null) {
       return;
     }
@@ -97,12 +93,22 @@ public class BodySourceView : MonoBehaviour {
 
         // WORKIN TEST
 
-        Transform shoulderLObj = bb.transform.Find(Kinect.JointType.ShoulderLeft.ToString()).transform;
-        Transform elbowLObj = bb.transform.Find(Kinect.JointType.ElbowLeft.ToString()).transform;
-        Transform wristLObj = bb.transform.Find(Kinect.JointType.WristLeft.ToString()).transform;
+        Transform shoulderLeft = bb.transform.Find(Kinect.JointType.ShoulderLeft.ToString()).transform;
+        Transform elbowLeft = bb.transform.Find(Kinect.JointType.ElbowLeft.ToString()).transform;
+        Transform wristLeft = bb.transform.Find(Kinect.JointType.WristLeft.ToString()).transform;
 
-        Quaternion shoulderLRot = Quaternion.LookRotation(elbowLObj.position - shoulderLObj.position);
-        Quaternion elbowLRot = Quaternion.LookRotation(wristLObj.position - elbowLObj.position);
+        leftShoulderAim = elbowLeft.position - shoulderLeft.position;
+        leftElbowAim = wristLeft.position - elbowLeft.position;
+
+        Transform shoulderRight = bb.transform.Find(Kinect.JointType.ShoulderRight.ToString()).transform;
+        Transform elbowRight = bb.transform.Find(Kinect.JointType.ElbowRight.ToString()).transform;
+        Transform wristRight = bb.transform.Find(Kinect.JointType.WristRight.ToString()).transform;
+
+        rightShoulderAim = Vector3.Normalize(elbowRight.position - shoulderRight.position);
+        rightElbowAim = Vector3.Normalize(wristRight.position - elbowRight.position);
+
+        // Debug.DrawLine(shoulderRight.position, shoulderRight.position + (2f * rightShoulderAim), Color.cyan);
+        // Debug.DrawLine(elbowRight.position, elbowRight.position + (2f * rightElbowAim), Color.cyan);
 
         // driving puppet
 
@@ -137,29 +143,6 @@ public class BodySourceView : MonoBehaviour {
       if (_BoneMap.ContainsKey(jt)) {
         targetJoint = body.Joints[_BoneMap[jt]];
       }
-
-      /// puppet avateering work
-      // RIGHT SOURCE TO LEFT TARGET
-      Kinect.Joint handRSrc = body.Joints[Kinect.JointType.HandRight];
-      Kinect.Joint shoulderRSrc = body.Joints[Kinect.JointType.ShoulderRight];
-
-      Vector3 handRSrcPos = GetVector3FromJoint(handRSrc);
-      Vector3 shoulderRSrcPos = GetVector3FromJoint(shoulderRSrc);
-      Vector3 diffR = handRSrcPos - shoulderRSrcPos;
-
-      handLIkTarget.position = shoulderLIkTarget.position + (diffR);
-
-      // LEFT SOURCE TO RIGHT TARGET
-      Kinect.Joint handLSrc = body.Joints[Kinect.JointType.HandLeft];
-      Kinect.Joint shoulderLSrc = body.Joints[Kinect.JointType.ShoulderLeft];
-
-      Vector3 handLSrcPos = GetVector3FromJoint(handLSrc);
-      Vector3 shoulderLSrcPos = GetVector3FromJoint(shoulderLSrc);
-      Vector3 diffL = handLSrcPos - shoulderLSrcPos;
-
-      handRIkTarget.position = shoulderRIkTarget.position + (diffL);
-
-      /// end puppet avateering
 
       // position the joints of the actual driven body
       Transform jointObj = bodyGuy.transform.Find(jt.ToString()).transform;
