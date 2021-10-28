@@ -9,8 +9,10 @@ public class Puppeteer : MonoBehaviour {
   public BodySourceView bodySourceView;
 
   public Transform rightShoulderIKRoot;
-  public Transform leftShoulderIKRoot;
+  public Transform rightArmIKTarget;
+  public Transform rightArmIKHint;
 
+  public Transform leftShoulderIKRoot;
   public Transform leftArmIKTarget;
   public Transform leftArmIKHint;
 
@@ -74,7 +76,6 @@ public class Puppeteer : MonoBehaviour {
     anim.SetFloat("speed", moveDir.magnitude);
 
     if (moveDir.magnitude > 0f) {
-      Debug.DrawLine(transform.position, transform.position + moveDir, Color.red);
       transform.rotation = Quaternion.LookRotation(moveDir);
     }
 
@@ -88,22 +89,43 @@ public class Puppeteer : MonoBehaviour {
 
       if (currWeight < 1f) {
         leftShoulderIKRoot.GetComponent<TwoBoneIKConstraint>().weight += 0.02f;
+        rightShoulderIKRoot.GetComponent<TwoBoneIKConstraint>().weight += 0.02f;
       }
 
-      Vector3 rightElbowPos = leftShoulderIKRoot.position + (upperArmLength * bodySourceView.rightShoulderAim);
-      Vector3 rightHandPos = rightElbowPos + (lowerArmLength * bodySourceView.rightElbowAim);
+      // positions for the IK targets
+      Vector3 rightElbowPos =
+        rightShoulderIKRoot.position
+        + (upperArmLength * ConvertDirectionToLocalSpace(bodySourceView.rightShoulderAim, transform));
+      Vector3 rightHandPos =
+        rightElbowPos
+        + (lowerArmLength * ConvertDirectionToLocalSpace(bodySourceView.rightElbowAim, transform));
 
-      leftArmIKHint.position = transform.right * rightElbowPos.x + Vector3.up * rightElbowPos.y + transform.forward * rightElbowPos.z;
-      leftArmIKTarget.position = transform.right * rightHandPos.x + Vector3.up * rightHandPos.y + transform.forward * rightHandPos.z;
-      // leftArmIKTarget.right = -(bodySourceView.rightElbowAim);
+      Vector3 leftElbowPos =
+        leftShoulderIKRoot.position
+        + (upperArmLength * ConvertDirectionToLocalSpace(bodySourceView.leftShoulderAim, transform));
+      Vector3 leftHandPos =
+        leftElbowPos
+        + (lowerArmLength * ConvertDirectionToLocalSpace(bodySourceView.leftElbowAim, transform));
 
-      Debug.DrawLine(leftShoulderIKRoot.position, rightElbowPos, Color.magenta);
-      Debug.DrawLine(rightElbowPos, rightHandPos, Color.magenta);
+      leftArmIKHint.position = leftElbowPos;
+      leftArmIKTarget.position = leftHandPos;
+      leftArmIKTarget.right = -(leftHandPos - leftElbowPos);
+
+      rightArmIKHint.position = rightElbowPos;
+      rightArmIKTarget.position = rightHandPos;
+      rightArmIKTarget.right = (rightHandPos - rightElbowPos);
+
+      Debug.DrawLine(leftShoulderIKRoot.position, leftElbowPos, Color.magenta);
+      Debug.DrawLine(leftElbowPos, leftHandPos, Color.magenta);
+
+      Debug.DrawLine(rightShoulderIKRoot.position, rightElbowPos, Color.cyan);
+      Debug.DrawLine(rightElbowPos, rightHandPos, Color.cyan);
     } else {
       float currWeight = leftShoulderIKRoot.GetComponent<TwoBoneIKConstraint>().weight;
 
       if (currWeight > 0f) {
-        leftShoulderIKRoot.GetComponent<TwoBoneIKConstraint>().weight -= 0.02f;
+        leftShoulderIKRoot.GetComponent<TwoBoneIKConstraint>().weight -= 0.1f;
+        rightShoulderIKRoot.GetComponent<TwoBoneIKConstraint>().weight -= 0.1f;
       }
     }
 
@@ -128,6 +150,21 @@ public class Puppeteer : MonoBehaviour {
     //this is the direction in the world space we want to move:
     return forward * verticalAxis + right * horizontalAxis;
   }
+  private Vector3 ConvertDirectionToLocalSpace(Vector3 dir, Transform trans) {
+    // forward and right vectors:
+    var forward = trans.forward;
+    var right = trans.right;
+    var up = trans.up;
+
+    // //project forward and right vectors on the horizontal plane (y = 0)
+    // forward.y = 0f;
+    // right.y = 0f;
+    // forward.Normalize();
+    // right.Normalize();
+
+    //this is the direction in the world space we want to move:
+    return -forward * dir.z + right * dir.x + up * dir.y;
+  }
 
   /// pulled from input examples
   protected virtual void OnControllerButtonPress(ButtonControl control, string dpadName = null, bool isXbox = false, bool isPS = false) {
@@ -137,7 +174,7 @@ public class Puppeteer : MonoBehaviour {
     // If the button input is from pressing a stick
     if (buttonName.Contains("StickPress")) {
       buttonName = buttonName.Replace("Press", "");
-      Debug.Log(buttonName + "  pressed!!!!!");
+      // Debug.Log(buttonName + "  pressed!!!!!");
     } else {
       if (control.aliases.Count > 0) {
         // TODO: should i map it all to cardinal dirs?
@@ -158,21 +195,23 @@ public class Puppeteer : MonoBehaviour {
       Debug.Log(buttonName + "  pressed!!!!!");
     }
 
+    // TODO: value says whther its button up or down, need to use it
+    // Debug.Log(buttonName + control.ReadValue());
+
     if (button == null)
       return;
 
-    if (control.ReadValue() > 0)
-      Debug.Log(buttonName + control.ReadValue());
-    else
-      Debug.Log(buttonName + control.ReadValue());
   }
 
   // Callback function when a stick is moved.
   protected virtual void StickMove(StickControl control) {
     Vector2 pos = control.ReadValue();
 
-    if (pos.magnitude > 0.1)
-      Debug.Log(control.name + "   " + pos);
+    if (pos.magnitude > 0.1) {
+      // Debug.Log(control.name + "   " + pos);
+      // left stick drive move by anim controller and the rotation code above
+      // right stick drives camera with cinemachine config
+    }
   }
 
   // Callback funtion when a button in a dpad is pressed.

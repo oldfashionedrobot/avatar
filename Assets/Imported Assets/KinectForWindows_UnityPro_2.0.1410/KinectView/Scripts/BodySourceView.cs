@@ -97,8 +97,8 @@ public class BodySourceView : MonoBehaviour {
         Transform elbowLeft = bb.transform.Find(Kinect.JointType.ElbowLeft.ToString()).transform;
         Transform wristLeft = bb.transform.Find(Kinect.JointType.WristLeft.ToString()).transform;
 
-        leftShoulderAim = elbowLeft.position - shoulderLeft.position;
-        leftElbowAim = wristLeft.position - elbowLeft.position;
+        leftShoulderAim = Vector3.Normalize(elbowLeft.position - shoulderLeft.position);
+        leftElbowAim = Vector3.Normalize(wristLeft.position - elbowLeft.position);
 
         Transform shoulderRight = bb.transform.Find(Kinect.JointType.ShoulderRight.ToString()).transform;
         Transform elbowRight = bb.transform.Find(Kinect.JointType.ElbowRight.ToString()).transform;
