@@ -16,8 +16,6 @@ public class Puppeteer : MonoBehaviour {
   public Transform leftArmIKTarget;
   public Transform leftArmIKHint;
 
-  private bool bodyDriveOn = false;
-
   private Camera mainCam;
   private Animator anim;
   private PlayerControls ctrl;
@@ -26,11 +24,13 @@ public class Puppeteer : MonoBehaviour {
   protected InputAction m_dPadAction;
   protected InputAction m_stickMoveAction;
 
+  // state vars
+  private bool bodyDriveOn = false;
+  private bool strafeMovementOn = false;
+
   void Awake() {
     anim = GetComponent<Animator>();
     mainCam = Camera.main;
-    // ctrl = new PlayerControls();
-    // ctrl.BaseGameplay.Jump.performed += ctx => TriggerJump();
   }
 
   void Start() {
@@ -69,14 +69,16 @@ public class Puppeteer : MonoBehaviour {
       return;
     }
 
-    Vector3 moveDir = GetInputDirectionByCamera(gamepad);
+    if (strafeMovementOn) {
 
-    bool crouched = gamepad.leftStickButton.wasPressedThisFrame; //Input.GetKey(KeyCode.LeftShift);
-    anim.SetBool("crouch", crouched);
-    anim.SetFloat("speed", moveDir.magnitude);
+    } else {
+      Vector3 moveDir = GetInputDirectionByCamera(gamepad);
 
-    if (moveDir.magnitude > 0f) {
-      transform.rotation = Quaternion.LookRotation(moveDir);
+      anim.SetFloat("speedX", moveDir.magnitude);
+
+      if (moveDir.magnitude > 0f) {
+        transform.rotation = Quaternion.LookRotation(moveDir);
+      }
     }
 
     /// TEST WORKING
@@ -174,7 +176,6 @@ public class Puppeteer : MonoBehaviour {
     // If the button input is from pressing a stick
     if (buttonName.Contains("StickPress")) {
       buttonName = buttonName.Replace("Press", "");
-      // Debug.Log(buttonName + "  pressed!!!!!");
     } else {
       if (control.aliases.Count > 0) {
         // TODO: should i map it all to cardinal dirs?
@@ -182,21 +183,36 @@ public class Puppeteer : MonoBehaviour {
         else if (isPS) buttonName = control.aliases[1];
         else buttonName = control.name.Replace("button", "");
       }
-
-      // check what buttons pressed
-      if (buttonName == "triangle") {
-        Debug.Log("activate body drive");
-        bodyDriveOn = true;
-      } else if (buttonName == "square") {
-        Debug.Log("deactivate body drive");
-        bodyDriveOn = false;
-      }
-
-      Debug.Log(buttonName + "  pressed!!!!!");
     }
 
-    // TODO: value says whther its button up or down, need to use it
-    // Debug.Log(buttonName + control.ReadValue());
+    float btnVal = control.ReadValue();
+
+    switch (buttonName) {
+      case "leftShoulder":
+        bodyDriveOn = true;
+        break;
+      case "rightShoulder":
+        bodyDriveOn = false;
+        break;
+      case "leftStick":
+        anim.SetBool("crouch", true);
+        break;
+      case "rightStick":
+        anim.SetBool("crouch", false);
+        break;
+      default:
+        Debug.Log(buttonName + control.ReadValue());
+        break;
+    }
+
+    // check what buttons pressed
+    if (buttonName == "triangle") {
+      Debug.Log("activate body drive");
+      bodyDriveOn = true;
+    } else if (buttonName == "square") {
+      Debug.Log("deactivate body drive");
+      bodyDriveOn = false;
+    }
 
     if (button == null)
       return;
