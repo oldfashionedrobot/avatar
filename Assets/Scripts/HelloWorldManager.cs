@@ -1,8 +1,13 @@
+using Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace HelloWorld {
   public class HelloWorldManager : MonoBehaviour {
+
+    [SerializeField]
+    private CinemachineFreeLook lookCam;
+
     void OnGUI() {
       GUILayout.BeginArea(new Rect(10, 10, 300, 300));
       if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer) {
@@ -77,5 +82,12 @@ namespace HelloWorld {
       //If approve is true, the connection gets added. If it's false. The client gets disconnected
       callback(createPlayerObject, _prefabHash, approve, _positionToSpawnAt, _rotationToSpawnWith);
     }
+
+    // setup stuff
+    public void InitFollowCamera(Transform target) {
+      lookCam.Follow = target;
+      lookCam.LookAt = target;
+    }
   }
+
 }

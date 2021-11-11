@@ -5,12 +5,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 
 namespace HelloWorld {
-  public enum AnimParameterType {
-    Bool = 0,
-    Float = 1,
-    Integer = 2
-  }
-
   public class HelloWorldPlayer : NetworkBehaviour {
     private NetworkVariable<bool> z_runtimeRigOn = new NetworkVariable<bool>(false);
 
@@ -29,6 +23,9 @@ namespace HelloWorld {
 
     public override void OnNetworkSpawn() {
       if (IsOwner) {
+        // attach camera
+        FindObjectOfType<HelloWorldManager>().InitFollowCamera(transform);
+
         m_buttonAction = new InputAction(name: "GamepadButtonAction", InputActionType.PassThrough,
           binding: "<Gamepad>/<button>");
         m_buttonAction.performed += callbackContext => OnControllerButtonPress(callbackContext.control as ButtonControl);
