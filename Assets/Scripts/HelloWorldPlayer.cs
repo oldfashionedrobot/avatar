@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 
@@ -11,14 +12,19 @@ namespace HelloWorld {
   }
 
   public class HelloWorldPlayer : NetworkBehaviour {
+    private NetworkVariable<bool> z_runtimeRigOn = new NetworkVariable<bool>(false);
+
     private Animator anim;
     private Camera mainCam;
+
+    [SerializeField]
+    private Rig rig;
 
     protected InputAction m_buttonAction;
     protected InputAction m_dPadAction;
     protected InputAction m_stickMoveAction;
 
-    private bool bodyDriveOn = false;
+    private bool runtimeRigOn = false;
     private bool strafeMovementOn = false;
 
     public override void OnNetworkSpawn() {
@@ -86,7 +92,18 @@ namespace HelloWorld {
 
     #region newstuff
     void Update() {
+      runtimeRigOn = z_runtimeRigOn.Value;
+
+      if (runtimeRigOn && rig.weight < 1f) {
+        // turn IK on
+        rig.weight += 0.02f;
+      } else if (!runtimeRigOn && rig.weight > 0f) {
+        // turn IK off
+        rig.weight -= 0.02f;
+      }
+
       if (IsOwner) {
+
         var gamepad = Gamepad.current;
         if (gamepad == null) {
           Debug.Log("No gamepad");
@@ -114,21 +131,7 @@ namespace HelloWorld {
             }
           }
         }
-
-        // Vector3 dir = GetInputDirectionByCamera();
-
-        // if (dir.magnitude > 0.05f) {
-        //   if (NetworkManager.Singleton.IsServer) {
-        //     transform.position = transform.position + (dir * 0.05f);
-        //     Position.Value = transform.position;
-        //   } else {
-        //     MoveMeServerRPC(transform.position + (dir * 0.05f));
-        //     // Move local self here too?
-        //   }
-        // }
       }
-
-      // transform.position = Position.Value;
     }
 
     [ServerRpc]
@@ -144,6 +147,11 @@ namespace HelloWorld {
     [ServerRpc]
     void SetRotationServerRPC(Vector3 lookDirection, ServerRpcParams rpcParams = default) {
       transform.rotation = Quaternion.LookRotation(lookDirection);
+    }
+
+    [ServerRpc]
+    void SetBodyDriveServerRPC(bool value, ServerRpcParams rpcParams = default) {
+      z_runtimeRigOn.Value = value;
     }
     #endregion
 
@@ -202,10 +210,10 @@ namespace HelloWorld {
 
       switch (buttonName) {
         case "leftShoulder":
-          // bodyDriveOn = true;
+          // runtimeRigOn = true;
           break;
         case "rightShoulder":
-          // bodyDriveOn = false;
+          // runtimeRigOn = false;
           break;
         case "leftStick":
           if (NetworkManager.Singleton.IsServer) {
@@ -230,11 +238,21 @@ namespace HelloWorld {
 
       // check what buttons pressed
       if (buttonName == "North") {
-        // Debug.Log("activate body drive");
-        // bodyDriveOn = true;
+        Debug.Log("activate body drive");
+        if (NetworkManager.Singleton.IsServer) {
+          z_runtimeRigOn.Value = true;
+        } else {
+          SetBodyDriveServerRPC(true);
+          runtimeRigOn = true;
+        }
       } else if (buttonName == "West") {
-        // Debug.Log("deactivate body drive");
-        // bodyDriveOn = false;
+        Debug.Log("deactivate body drive");
+        if (NetworkManager.Singleton.IsServer) {
+          z_runtimeRigOn.Value = false;
+        } else {
+          SetBodyDriveServerRPC(false);
+          runtimeRigOn = false;
+        }
       }
 
       if (button == null)

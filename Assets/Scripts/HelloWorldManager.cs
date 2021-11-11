@@ -53,7 +53,7 @@ namespace HelloWorld {
 
     static void SpawnPlayerObject(ulong clientId) {
       // TEST: trying manual spawning
-      GameObject pp = Instantiate(Resources.Load("Player"), Vector3.zero, Quaternion.identity) as GameObject;
+      GameObject pp = Instantiate(Resources.Load("Avatar"), Vector3.zero, Quaternion.identity) as GameObject;
       pp.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
     }
 
