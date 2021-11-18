@@ -3397,7 +3397,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd0e9e17c148d6e4c936bb60fcd54dfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugDrive: 0
   rig: {fileID: 7341079699214631362}
+  rightShoulderIKRoot: {fileID: 7310852171558615998}
+  rightArmIKTarget: {fileID: 4121467513840177646}
+  rightArmIKHint: {fileID: 3677225470511576035}
+  leftShoulderIKRoot: {fileID: 7750062458517964002}
+  leftArmIKTarget: {fileID: 8277657907400474271}
+  leftArmIKHint: {fileID: 8564586047612001983}
 --- !u!114 &550949802564729081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5711,13 +5718,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3218823349024783472}
-  m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.60864305, y: -0.029449921, z: 0.014248563}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7310852171558615998}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5308804884300954112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5806,7 +5813,7 @@ MonoBehaviour:
     m_MaintainTargetPositionOffset: 0
     m_MaintainTargetRotationOffset: 0
   m_SourceObjectsGUIToggle: 1
-  m_SettingsGUIToggle: 0
+  m_SettingsGUIToggle: 1
 --- !u!114 &397577028745250286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5855,7 +5862,7 @@ MonoBehaviour:
       z: 1
     m_MaintainOffset: 0
   m_SourceObjectsGUIToggle: 1
-  m_SettingsGUIToggle: 0
+  m_SettingsGUIToggle: 1
 --- !u!114 &1011451571491488159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5985,9 +5992,9 @@ MonoBehaviour:
     m_TargetRotationWeight: 1
     m_HintWeight: 1
     m_MaintainTargetPositionOffset: 0
-    m_MaintainTargetRotationOffset: 0
+    m_MaintainTargetRotationOffset: 1
   m_SourceObjectsGUIToggle: 1
-  m_SettingsGUIToggle: 0
+  m_SettingsGUIToggle: 1
 --- !u!114 &550949802061738925
 MonoBehaviour:
   m_ObjectHideFlags: 0

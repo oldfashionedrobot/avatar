@@ -12,9 +12,6 @@ public class BodySourceView : MonoBehaviour {
   public Vector3 rightElbowAim;
 
   /// END TEST WORKING
-
-  public GameObject bodyObject;
-
   public Material BoneMaterial;
   public GameObject BodySourceManager;
 

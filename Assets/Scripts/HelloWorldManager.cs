@@ -8,6 +8,9 @@ namespace HelloWorld {
     [SerializeField]
     private CinemachineFreeLook lookCam;
 
+    [Tooltip("Automatically start as Host")]
+    [SerializeField] private bool debugHost = false;
+
     void OnGUI() {
       GUILayout.BeginArea(new Rect(10, 10, 300, 300));
       if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer) {
@@ -21,8 +24,8 @@ namespace HelloWorld {
       GUILayout.EndArea();
     }
 
-    static void StartButtons() {
-      if (GUILayout.Button("Host")) {
+    void StartButtons() {
+      if (GUILayout.Button("Host") || debugHost) {
         NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
         NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayerObject;
         NetworkManager.Singleton.StartHost();
@@ -58,7 +61,7 @@ namespace HelloWorld {
 
     static void SpawnPlayerObject(ulong clientId) {
       // TEST: trying manual spawning
-      GameObject pp = Instantiate(Resources.Load("Avatar"), Vector3.zero, Quaternion.identity) as GameObject;
+      GameObject pp = Instantiate(Resources.Load("Avatar"), Vector3.zero - (Vector3.up * 5f), Quaternion.identity) as GameObject;
       pp.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
     }
 

@@ -6,13 +6,24 @@ using UnityEngine.InputSystem.Controls;
 
 namespace HelloWorld {
   public class HelloWorldPlayer : NetworkBehaviour {
+    // debug stuff
+    [Tooltip("Turn off body driving to manually move drivers in scene")]
+    [SerializeField] private bool debugDrive = false;
+
     private NetworkVariable<bool> z_runtimeRigOn = new NetworkVariable<bool>(false);
 
     private Animator anim;
     private Camera mainCam;
 
-    [SerializeField]
-    private Rig rig;
+    [SerializeField] private Rig rig;
+
+    [SerializeField] private Transform rightShoulderIKRoot;
+    [SerializeField] private Transform rightArmIKTarget;
+    [SerializeField] private Transform rightArmIKHint;
+
+    [SerializeField] private Transform leftShoulderIKRoot;
+    [SerializeField] private Transform leftArmIKTarget;
+    [SerializeField] private Transform leftArmIKHint;
 
     protected InputAction m_buttonAction;
     protected InputAction m_dPadAction;
@@ -21,10 +32,16 @@ namespace HelloWorld {
     private bool runtimeRigOn = false;
     private bool strafeMovementOn = false;
 
+    /// TESTING kinect stuf
+    private BodySourceView bodySourceView;
+
     public override void OnNetworkSpawn() {
       if (IsOwner) {
         // attach camera
         FindObjectOfType<HelloWorldManager>().InitFollowCamera(transform);
+
+        /// attach body drive stuff
+        bodySourceView = FindObjectOfType<BodySourceView>();
 
         m_buttonAction = new InputAction(name: "GamepadButtonAction", InputActionType.PassThrough,
           binding: "<Gamepad>/<button>");
@@ -83,7 +100,7 @@ namespace HelloWorld {
     }
 
     static Vector3 GetRandomPositionOnPlane() {
-      return new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f));
+      return new Vector3(Random.Range(-3f, 3f), -5f, Random.Range(-3f, 3f));
     }
     #endregion 
 
@@ -100,6 +117,41 @@ namespace HelloWorld {
       }
 
       if (IsOwner) {
+        // NOTE: need a more robust way to degrade if no kinect/body tracking
+        if (!debugDrive && runtimeRigOn && bodySourceView != null) {
+          /// TEST WORKING kinect / body stuff
+          float upperArmLength = 0.3f;
+          float lowerArmLength = 0.3f;
+
+          // positions for the IK targets
+          Vector3 rightElbowPos =
+            rightShoulderIKRoot.position
+            + (upperArmLength * ConvertDirectionToLocalSpace(bodySourceView.rightShoulderAim, transform));
+          Vector3 rightHandPos =
+            rightElbowPos
+            + (lowerArmLength * ConvertDirectionToLocalSpace(bodySourceView.rightElbowAim, transform));
+
+          Vector3 leftElbowPos =
+            leftShoulderIKRoot.position
+            + (upperArmLength * ConvertDirectionToLocalSpace(bodySourceView.leftShoulderAim, transform));
+          Vector3 leftHandPos =
+            leftElbowPos
+            + (lowerArmLength * ConvertDirectionToLocalSpace(bodySourceView.leftElbowAim, transform));
+
+          leftArmIKHint.position = leftElbowPos;
+          leftArmIKTarget.position = leftHandPos;
+          leftArmIKTarget.right = -(leftHandPos - leftElbowPos);
+
+          rightArmIKHint.position = rightElbowPos;
+          rightArmIKTarget.position = rightHandPos;
+          rightArmIKTarget.right = (rightHandPos - rightElbowPos);
+
+          Debug.DrawLine(leftShoulderIKRoot.position, leftElbowPos, Color.magenta);
+          Debug.DrawLine(leftElbowPos, leftHandPos, Color.magenta);
+
+          Debug.DrawLine(rightShoulderIKRoot.position, rightElbowPos, Color.cyan);
+          Debug.DrawLine(rightElbowPos, rightHandPos, Color.cyan);
+        }
 
         var gamepad = Gamepad.current;
         if (gamepad == null) {
