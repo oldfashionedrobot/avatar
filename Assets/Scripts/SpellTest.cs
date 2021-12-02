@@ -120,6 +120,14 @@ public class SpellTest : MonoBehaviour {
       spellCharge.SetActive(false);
     } else {
       castingState = 1;
+
+      // to simulate fire spawning around you, just flip scale to be left side randomly
+      if (Random.value > 0.5f) {
+        fireSpell.transform.localScale = new Vector3(-1, 1, 1);
+      } else {
+        fireSpell.transform.localScale = new Vector3(1, 1, 1);
+      }
+
       spellStart = fireSpell.transform.Find("Start").gameObject;
       spellStart.SetActive(false);
 

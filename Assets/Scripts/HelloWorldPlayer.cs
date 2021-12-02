@@ -40,6 +40,7 @@ namespace HelloWorld {
     private BodySourceView bodySourceView;
 
     // TESTING spell stuff
+    public Collider leftHandTouch;
     public Collider rightHandTouch;
     public SpellTest spellStuff;
 
@@ -117,6 +118,7 @@ namespace HelloWorld {
       runtimeRigOn = z_runtimeRigOn.Value;
 
       rightHandTouch.enabled = runtimeRigOn;
+      leftHandTouch.enabled = runtimeRigOn;
 
       if (runtimeRigOn && rig.weight < 1f) {
         // turn IK on
