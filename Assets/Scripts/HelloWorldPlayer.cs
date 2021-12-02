@@ -25,6 +25,10 @@ namespace HelloWorld {
     [SerializeField] private Transform leftArmIKTarget;
     [SerializeField] private Transform leftArmIKHint;
 
+    /// TEMP:
+    [SerializeField] private Transform spineIKRoot;
+    [SerializeField] private Transform spineIKTarget;
+
     protected InputAction m_buttonAction;
     protected InputAction m_dPadAction;
     protected InputAction m_stickMoveAction;
@@ -34,6 +38,10 @@ namespace HelloWorld {
 
     /// TESTING kinect stuf
     private BodySourceView bodySourceView;
+
+    // TESTING spell stuff
+    public Collider rightHandTouch;
+    public SpellTest spellStuff;
 
     public override void OnNetworkSpawn() {
       if (IsOwner) {
@@ -108,6 +116,8 @@ namespace HelloWorld {
     void Update() {
       runtimeRigOn = z_runtimeRigOn.Value;
 
+      rightHandTouch.enabled = runtimeRigOn;
+
       if (runtimeRigOn && rig.weight < 1f) {
         // turn IK on
         rig.weight += 0.02f;
@@ -151,6 +161,26 @@ namespace HelloWorld {
 
           Debug.DrawLine(rightShoulderIKRoot.position, rightElbowPos, Color.cyan);
           Debug.DrawLine(rightElbowPos, rightHandPos, Color.cyan);
+
+          /// TESTING: what other tracking can i use
+
+          // spine?
+          float upperSpineLength = .2f;
+          float lowerSpineLength = .2f;
+
+          Vector3 spineMidPos = spineIKRoot.position + (lowerSpineLength * ConvertDirectionToLocalSpace(bodySourceView.spineBaseAim, transform));
+          Vector3 spineTopPos = spineMidPos + (upperSpineLength * ConvertDirectionToLocalSpace(bodySourceView.spineMidAim, transform));
+          Vector3 spineTopAim = ConvertDirectionToLocalSpace(bodySourceView.spineTopAim, transform);
+
+          spineIKTarget.position = spineTopPos;
+          spineIKTarget.forward = spineTopAim;
+
+          // Debug.DrawLine(spineIKTarget.position, spineIKTarget.position + ConvertDirectionToLocalSpace(bodySourceView.spineTopAim, transform), Color.red);
+
+          // lean might be useful 
+          // Vector3 leanDebugPos = transform.position + (Vector3.up * 1f);
+          // Vector3 leanDebugTgt = leanDebugPos + bodySourceView.leanDirection;
+          // Debug.DrawLine(leanDebugPos, leanDebugTgt, Color.green);
         }
 
         var gamepad = Gamepad.current;
@@ -259,10 +289,13 @@ namespace HelloWorld {
 
       switch (buttonName) {
         case "leftShoulder":
+          // Debug.Break();
           // runtimeRigOn = true;
           break;
         case "rightShoulder":
           // runtimeRigOn = false;
+          // TEST spell stuff
+          spellStuff.ActivateElementSelect();
           break;
         case "leftStick":
           if (NetworkManager.Singleton.IsServer) {
@@ -281,13 +314,13 @@ namespace HelloWorld {
           }
           break;
         default:
-          Debug.Log("NO MAPPED ACTION FOR: " + buttonName + control.ReadValue());
+          // Debug.Log("NO MAPPED ACTION FOR: " + buttonName + control.ReadValue());
           break;
       }
 
       // check what buttons pressed
       if (buttonName == "North") {
-        Debug.Log("activate body drive");
+        // Debug.Log("activate body drive");
         if (NetworkManager.Singleton.IsServer) {
           z_runtimeRigOn.Value = true;
         } else {
@@ -295,7 +328,7 @@ namespace HelloWorld {
           runtimeRigOn = true;
         }
       } else if (buttonName == "West") {
-        Debug.Log("deactivate body drive");
+        // Debug.Log("deactivate body drive");
         if (NetworkManager.Singleton.IsServer) {
           z_runtimeRigOn.Value = false;
         } else {

@@ -68,8 +68,8 @@ namespace HelloWorld {
     static void ApprovalCheck(byte[] connectionData, ulong clientId, NetworkManager.ConnectionApprovedDelegate callback) {
       string data = System.Text.Encoding.ASCII.GetString(connectionData);
 
-      Debug.Log("Tryin to connect: ");
-      Debug.Log("Length: " + connectionData.Length + " -- " + data);
+      // Debug.Log("Tryin to connect: ");
+      // Debug.Log("Length: " + connectionData.Length + " -- " + data);
 
       //Your logic here6
       bool approve = true;
