@@ -34,7 +34,7 @@ namespace HelloWorld {
     protected InputAction m_stickMoveAction;
 
     private bool runtimeRigOn = false;
-    private bool strafeMovementOn = false;
+    // private bool strafeMovementOn = false;
 
     /// TESTING kinect stuf
     private BodySourceView bodySourceView;
@@ -43,11 +43,18 @@ namespace HelloWorld {
     public Collider leftHandTouch;
     public Collider rightHandTouch;
     public SpellTest spellStuff;
+    public CinemachineCameraOffset camOffsetScript;
+
+    private bool shootingMode = false;
+    /// END TESTING SPELL
 
     public override void OnNetworkSpawn() {
       if (IsOwner) {
         // attach camera
         FindObjectOfType<HelloWorldManager>().InitFollowCamera(transform);
+
+        // TEMP: shite
+        camOffsetScript = FindObjectOfType<CinemachineCameraOffset>();
 
         /// attach body drive stuff
         bodySourceView = FindObjectOfType<BodySourceView>();
@@ -158,11 +165,11 @@ namespace HelloWorld {
           rightArmIKTarget.position = rightHandPos;
           rightArmIKTarget.right = (rightHandPos - rightElbowPos);
 
-          Debug.DrawLine(leftShoulderIKRoot.position, leftElbowPos, Color.magenta);
-          Debug.DrawLine(leftElbowPos, leftHandPos, Color.magenta);
+          // Debug.DrawLine(leftShoulderIKRoot.position, leftElbowPos, Color.magenta);
+          // Debug.DrawLine(leftElbowPos, leftHandPos, Color.magenta);
 
-          Debug.DrawLine(rightShoulderIKRoot.position, rightElbowPos, Color.cyan);
-          Debug.DrawLine(rightElbowPos, rightHandPos, Color.cyan);
+          // Debug.DrawLine(rightShoulderIKRoot.position, rightElbowPos, Color.cyan);
+          // Debug.DrawLine(rightElbowPos, rightHandPos, Color.cyan);
 
           /// TESTING: what other tracking can i use
 
@@ -191,10 +198,25 @@ namespace HelloWorld {
           return;
         }
 
-        if (strafeMovementOn) {
+        if (shootingMode) {
+          Vector3 camFwd = mainCam.transform.forward;
+          Vector3 lookDir = new Vector3(camFwd.x, 0f, camFwd.z);
 
+          camOffsetScript.m_Offset = Vector3.Lerp(camOffsetScript.m_Offset, new Vector3(0.4f, 0.1f, 1f), 20f * Time.deltaTime);
+
+          if (NetworkManager.Singleton.IsServer) {
+            anim.SetFloat("speedX", 0f);
+            transform.rotation = Quaternion.LookRotation(lookDir);
+          } else {
+            SetAnimFloatServerRPC("speedX", 0f);
+            anim.SetFloat("speedX", 0f);
+            SetRotationServerRPC(lookDir);
+            transform.rotation = Quaternion.LookRotation(lookDir);
+          }
         } else {
           Vector3 moveDir = GetInputDirectionByCamera(gamepad);
+
+          camOffsetScript.m_Offset = Vector3.Lerp(camOffsetScript.m_Offset, Vector3.zero, 20f * Time.deltaTime); 
 
           if (NetworkManager.Singleton.IsServer) {
             anim.SetFloat("speedX", moveDir.magnitude);
@@ -290,9 +312,23 @@ namespace HelloWorld {
       float btnVal = control.ReadValue();
 
       switch (buttonName) {
+        // TEMP: shite!!
+        case "touchpadButton":
+          Debug.Break();
+          break;
+        case "leftTrigger":
+          shootingMode = false;
+          break;
+        case "rightTrigger":
+          spellStuff.TakeShootButton(control.ReadValue());
+          break;
         case "leftShoulder":
           // Debug.Break();
-          // runtimeRigOn = true;
+          // runtimeRigOn = true;'
+          // TEST ACTIVATE BOW 
+          spellStuff.ActivateBowAction();
+          shootingMode = true;
+
           break;
         case "rightShoulder":
           // runtimeRigOn = false;

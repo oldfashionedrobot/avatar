@@ -17,34 +17,87 @@ public class SpellTest : MonoBehaviour {
     Air = 3
   }
 
+  public enum BowState {
+    None = 0,
+    Ready = 1,
+    Aim = 2,
+    Fire = 3
+  }
+
+
   public GameObject elementSelect;
   public GameObject genericSpell;
   public GameObject fireSpell;
+  public GameObject bowAction;
 
   private SpellState state = SpellState.None;
+  private BowState bowState = BowState.None;
   private SpellElement element = SpellElement.Air;
 
   public void OnChildTriggerEntered(Collider other, GameObject triggered) {
     switch (state) {
       case SpellState.ElementSelect:
         SelectElement(triggered.name);
-        break;
+        return;
       case SpellState.SpellCast:
         HandleSpellCast(triggered);
-        break;
+        return;
       case SpellState.None:
       default:
+        // TEMP: this is hacky, but works for now
+        if(bowState != BowState.None) {
+          HandleBowAction(triggered.name, other.transform.parent.name);
+        }
         break;
     }
   }
 
   public bool ActivateElementSelect() {
+    // ActivateBowAction();
+    // return false;
+
     if (state != SpellState.ElementSelect) {
       state = SpellState.ElementSelect;
       elementSelect.SetActive(true);
       return true;
     } else {
       return false;
+    }
+  }
+
+  public bool ActivateBowAction() {
+
+    InitBowAction();
+    return true;
+  }
+
+// TEMP: SHITE !!!!!
+private bool heldDown = false;
+private Vector3 pullStart;
+  public void TakeShootButton(float dir) {  
+    if(waitForShootBtn) {
+      if(dir == 1 && !heldDown) {
+        // Debug.Log("PULLING BOW");
+        heldDown = true;
+        pullStart = GameObject.Find("Hand_R").transform.position;
+      }
+
+      if(heldDown && dir == 0) {
+        // Debug.Log("RELEASING BOW");
+        heldDown = false;
+        // shite to get the pull distance
+        Vector3 pullEnd = GameObject.Find("Hand_R").transform.position;
+        float pullDistance = (pullStart - pullEnd).magnitude;
+
+        // shite to get the aim vert
+        Vector3 leftHandPos = GameObject.Find("Hand_L").transform.position;
+        Vector3 aimShift = (leftHandPos - spellStart.transform.position);
+
+        waitForShootBtn = false;
+        bowState = BowState.None;
+
+        ReleaseSpell(aimShift, pullDistance);
+      }
     }
   }
 
@@ -60,18 +113,26 @@ public class SpellTest : MonoBehaviour {
 
   void OnEnable() {
     state = SpellState.None;
+    bowState = BowState.None;
+        waitForShootBtn = false;
+        heldDown = false;
     elementSelect.SetActive(false);
     genericSpell.SetActive(false);
+    bowAction.SetActive(false);
   }
 
   void OnDisable() {
     state = SpellState.None;
+    bowState = BowState.None;
+        waitForShootBtn = false;
+        heldDown = false;
     elementSelect.SetActive(false);
     genericSpell.SetActive(false);
+    bowAction.SetActive(false);
   }
 
   private void SelectElement(string elementSelected) {
-    Debug.Log("SELECTED " + elementSelected);
+    // Debug.Log("SELECTED " + elementSelected);
 
     state = SpellState.SpellCast;
     elementSelect.SetActive(false);
@@ -103,7 +164,7 @@ public class SpellTest : MonoBehaviour {
   // TODO: each spell should have its own script to drive
   // here is a basic logic for a generic "bowl" action
 
-  private int castingState = 0;
+  private int castingState = 0; // o:pre-start, 1:started-move to charge spot, 2:charged-move to start spot to release 
   private GameObject spellStart;
   private GameObject spellCharge;
 
@@ -153,12 +214,54 @@ public class SpellTest : MonoBehaviour {
       castingState = 2;
       spellStart.SetActive(false);
       spellCharge.SetActive(false);
-      ReleaseSpellCast();
+
+      // reset to base state
+      castingState = 0;
+      state = SpellState.None;
+      elementSelect.SetActive(false);
+
+      // turn off all spells for now, should be handled with polymorphic spells
+      genericSpell.SetActive(false);
+      fireSpell.SetActive(false);
+  
+      ReleaseSpell(Vector3.zero);
     }
 
   }
 
-  private void ReleaseSpellCast() {
+  private void InitBowAction() {
+// TEMP: very hacky reusing vars
+    bowAction.SetActive(true);
+    bowState = BowState.Ready;
+    spellStart = bowAction.transform.Find("Start").gameObject;
+    spellStart.SetActive(true);
+
+    spellCharge = bowAction.transform.Find("Charge").gameObject;
+    spellCharge.SetActive(false);
+  }
+
+  private bool waitForShootBtn = false;
+  private void HandleBowAction(string triggerName, string handName) {
+    if (bowState == BowState.Ready && triggerName == "Start" && handName == "Hand_L") {
+      // left hand in place, 
+      // Begin the spell cast
+      bowState = BowState.Aim;
+      spellStart.SetActive(false);
+      spellCharge.SetActive(true);
+    } else if (bowState == BowState.Aim && triggerName == "Charge" && handName == "Hand_R") {
+      // start pulling back bow
+
+      waitForShootBtn = true;
+            heldDown = false;
+      bowState = BowState.Fire;
+      spellStart.SetActive(false);
+      spellCharge.SetActive(false);
+    }
+  }
+
+  // TEMP: SHITE (note this dist maxes around .55 in this specific)
+  private async void ReleaseSpell(Vector3 aimShift, float pullDist = 0) {
+    // Debug.Log("FIRE ZE MISSILE");
     GameObject stone = Instantiate(Resources.Load("Projectile"), spellStart.transform.position, Quaternion.identity) as GameObject;
 
     Rigidbody rBody = stone.GetComponent<Rigidbody>();
@@ -167,19 +270,20 @@ public class SpellTest : MonoBehaviour {
     Vector3 aimDir = targetPoint - stone.transform.position;
     aimDir.y += 10f;
 
-    rBody.AddForce(aimDir * 20f);
+    float force = 20f;
+
+    /// TEMP mod the projectile based on bow
+    if(pullDist > 0) {
+      Debug.Log(aimShift);
+      force = pullDist * 2f * force;
+      aimDir += (aimShift * aimDir.magnitude);
+    } 
+
+    rBody.AddForce(aimDir * force);
 
     // NOTE: just a catch to clean up for now
     Destroy(stone, 20f);
 
-    // reset to base state
-    castingState = 0;
-    state = SpellState.None;
-    elementSelect.SetActive(false);
-
-    // turn off all spells for now, should be handled with polymorphic spells
-    genericSpell.SetActive(false);
-    fireSpell.SetActive(false);
   }
 
 }
