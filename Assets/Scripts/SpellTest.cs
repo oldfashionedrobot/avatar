@@ -1,8 +1,9 @@
+using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpellTest : MonoBehaviour {
+public class SpellTest : NetworkBehaviour {
 
   public enum SpellState {
     None = 0,
@@ -96,7 +97,7 @@ private Vector3 pullStart;
         waitForShootBtn = false;
         bowState = BowState.None;
 
-        ReleaseSpell(aimShift, pullDistance);
+        ReleaseSpellServerRpc(aimShift, pullDistance);
       }
     }
   }
@@ -224,7 +225,7 @@ private Vector3 pullStart;
       genericSpell.SetActive(false);
       fireSpell.SetActive(false);
   
-      ReleaseSpell(Vector3.zero);
+      ReleaseSpellServerRpc(Vector3.zero);
     }
 
   }
@@ -259,8 +260,9 @@ private Vector3 pullStart;
     }
   }
 
-  // TEMP: SHITE (note this dist maxes around .55 in this specific)
-  private async void ReleaseSpell(Vector3 aimShift, float pullDist = 0) {
+    // TEMP: SHITE (note this dist maxes around .55 in this specific)
+  [ServerRpc]
+  private async void ReleaseSpellServerRpc(Vector3 aimShift, float pullDist = 0) {
     // Debug.Log("FIRE ZE MISSILE");
     GameObject stone = Instantiate(Resources.Load("Projectile"), spellStart.transform.position, Quaternion.identity) as GameObject;
 
@@ -274,7 +276,7 @@ private Vector3 pullStart;
 
     /// TEMP mod the projectile based on bow
     if(pullDist > 0) {
-      Debug.Log(aimShift);
+      // Debug.Log(aimShift);
       force = pullDist * 2f * force;
       aimDir += (aimShift * aimDir.magnitude);
     } 
@@ -285,5 +287,4 @@ private Vector3 pullStart;
     Destroy(stone, 20f);
 
   }
-
 }

@@ -135,9 +135,11 @@ namespace HelloWorld {
         rig.weight -= 0.02f;
       }
 
+
       if (IsOwner) {
         // NOTE: need a more robust way to degrade if no kinect/body tracking
         if (!debugDrive && runtimeRigOn && bodySourceView != null) {
+
           /// TEST WORKING kinect / body stuff
           float upperArmLength = 0.3f;
           float lowerArmLength = 0.3f;
@@ -157,13 +159,20 @@ namespace HelloWorld {
             leftElbowPos
             + (lowerArmLength * ConvertDirectionToLocalSpace(bodySourceView.leftElbowAim, transform));
 
-          leftArmIKHint.position = leftElbowPos;
-          leftArmIKTarget.position = leftHandPos;
-          leftArmIKTarget.right = -(leftHandPos - leftElbowPos);
 
-          rightArmIKHint.position = rightElbowPos;
-          rightArmIKTarget.position = rightHandPos;
-          rightArmIKTarget.right = (rightHandPos - rightElbowPos);
+          if(NetworkManager.Singleton.IsServer) {
+            leftArmIKHint.position = leftElbowPos;
+            leftArmIKTarget.position = leftHandPos;
+            leftArmIKTarget.right = -(leftHandPos - leftElbowPos);
+
+            rightArmIKHint.position = rightElbowPos;
+            rightArmIKTarget.position = rightHandPos;
+            rightArmIKTarget.right = (rightHandPos - rightElbowPos);
+          } else {
+            SetArmHandlesServerRPC(leftElbowPos, leftHandPos, rightElbowPos, rightHandPos);
+          }
+
+          /// TODO: 
 
           // Debug.DrawLine(leftShoulderIKRoot.position, leftElbowPos, Color.magenta);
           // Debug.DrawLine(leftElbowPos, leftHandPos, Color.magenta);
@@ -181,8 +190,12 @@ namespace HelloWorld {
           Vector3 spineTopPos = spineMidPos + (upperSpineLength * ConvertDirectionToLocalSpace(bodySourceView.spineMidAim, transform));
           Vector3 spineTopAim = ConvertDirectionToLocalSpace(bodySourceView.spineTopAim, transform);
 
-          spineIKTarget.position = spineTopPos;
-          spineIKTarget.forward = spineTopAim;
+          if(NetworkManager.Singleton.IsServer) {
+            spineIKTarget.position = spineTopPos;
+            spineIKTarget.forward = spineTopAim;
+          } else {
+            SetSpineHandlesServerRPC(spineTopPos, spineTopAim);
+          }
 
           // Debug.DrawLine(spineIKTarget.position, spineIKTarget.position + ConvertDirectionToLocalSpace(bodySourceView.spineTopAim, transform), Color.red);
 
@@ -235,6 +248,23 @@ namespace HelloWorld {
           }
         }
       }
+    }
+
+    [ServerRpc]
+    void SetArmHandlesServerRPC(Vector3 leftElbowPos, Vector3 leftHandPos, Vector3 rightElbowPos, Vector3 rightHandPos) {
+      leftArmIKHint.position = leftElbowPos;
+      leftArmIKTarget.position = leftHandPos;
+      leftArmIKTarget.right = -(leftHandPos - leftElbowPos);
+
+      rightArmIKHint.position = rightElbowPos;
+      rightArmIKTarget.position = rightHandPos;
+      rightArmIKTarget.right = (rightHandPos - rightElbowPos);
+    }
+
+    [ServerRpc]
+    void SetSpineHandlesServerRPC(Vector3 spineTopPos, Vector3 spineTopAim) {
+      spineIKTarget.position = spineTopPos;
+      spineIKTarget.forward = spineTopAim;
     }
 
     [ServerRpc]
