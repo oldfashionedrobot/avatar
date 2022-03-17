@@ -112,18 +112,18 @@ private Vector3 pullStart;
       }
     } else if(dir == 0) {
 
-      Vector3 projSpawn = transform.position;
-      projSpawn.y += 1.5f;
-      Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
-      Vector3 targetPoint = camAim.GetPoint(100f);
-      Vector3 aimDir = targetPoint - projSpawn;
-      aimDir.y += 10f;
+      // Vector3 projSpawn = transform.position;
+      // projSpawn.y += 1.5f;
+      // Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
+      // Vector3 targetPoint = camAim.GetPoint(100f);
+      // Vector3 aimDir = targetPoint - projSpawn;
+      // aimDir.y += 10f;
       
-      if (NetworkManager.Singleton.IsServer) {
-        ReleaseSpellClientRpc(element, aimDir, projSpawn, Vector3.zero);
-      } else {
-        ClientReleaseSpellServerRpc(element, aimDir, projSpawn, Vector3.zero);
-      }
+      // if (NetworkManager.Singleton.IsServer) {
+      //   ReleaseSpellClientRpc(element, aimDir, projSpawn, Vector3.zero);
+      // } else {
+      //   ClientReleaseSpellServerRpc(element, aimDir, projSpawn, Vector3.zero);
+      // }
     }
   }
 
