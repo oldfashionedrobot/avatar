@@ -200,11 +200,11 @@ public class BodySourceView : MonoBehaviour {
         Kinect.JointOrientation jo = body.JointOrientations[jt];
 
         // Debug.Log("X : " + jo.Orientation.X + "  Y: " + jo.Orientation.Y + "  Z: " + jo.Orientation.Z + "  W: " + jo.Orientation.W);
-        Vector3 testDir = new Quaternion(jo.Orientation.X * 10, jo.Orientation.Y * 10, jo.Orientation.Z * 10, jo.Orientation.W * 10) * jointObj.forward;
+        Vector3 joinOrient = new Quaternion(jo.Orientation.X * 10, jo.Orientation.Y * 10, jo.Orientation.Z * 10, jo.Orientation.W * 10) * jointObj.forward;
 
         lr.SetPosition(0, jointObj.localPosition);
-        // lr.SetPosition(1, jointObj.localPosition + testDir.normalized);
-        lr.SetPosition(1, jointObj.localPosition + lookDir);
+        lr.SetPosition(1, jointObj.localPosition + joinOrient.normalized);
+                // lr.SetPosition(1, jointObj.localPosition + lookDir);
         lr.SetColors(GetColorForState(sourceJoint.TrackingState), GetColorForState(targetJoint.Value.TrackingState));
       } else {
         lr.enabled = false;

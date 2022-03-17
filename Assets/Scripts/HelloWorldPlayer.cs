@@ -82,9 +82,16 @@ namespace HelloWorld {
     }
 
     private void OnAnimatorMove() {
-      transform.position = transform.position + anim.deltaPosition;
-      // if (NetworkManager.Singleton.IsServer) {
-      // }
+      if (NetworkManager.Singleton.IsServer) {
+        transform.position = transform.position + anim.deltaPosition;
+      } else {
+        MakeMeMoveServerRpc(transform.position + anim.deltaPosition);
+      }
+    }
+
+    [ServerRpc]
+    void MakeMeMoveServerRpc(Vector3 dest) {
+
     }
 
     private void OnEnable() {
