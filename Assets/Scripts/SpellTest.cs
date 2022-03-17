@@ -15,7 +15,8 @@ public class SpellTest : NetworkBehaviour {
     Fire = 0,
     Water = 1,
     Earth = 2,
-    Air = 3
+    Wind = 3,
+    Aether = 4
   }
 
   public enum BowState {
@@ -33,7 +34,7 @@ public class SpellTest : NetworkBehaviour {
 
   private SpellState state = SpellState.None;
   private BowState bowState = BowState.None;
-  private SpellElement element = SpellElement.Air;
+  private SpellElement element = SpellElement.Wind;
 
   public void OnChildTriggerEntered(Collider other, GameObject triggered) {
     switch (state) {
@@ -104,9 +105,9 @@ private Vector3 pullStart;
         aimDir.y += 10f;
 
         if (NetworkManager.Singleton.IsServer) {
-          ReleaseSpellClientRpc(aimDir, projSpawn, aimShift, pullDistance);
+          ReleaseSpellClientRpc(SpellElement.Aether, aimDir, projSpawn, aimShift, pullDistance);
         } else {
-          ClientReleaseSpellServerRpc(aimDir, projSpawn, aimShift, pullDistance);
+          ClientReleaseSpellServerRpc(SpellElement.Aether, aimDir, projSpawn, aimShift, pullDistance);
         }
       }
     } else if(dir == 0) {
@@ -119,9 +120,9 @@ private Vector3 pullStart;
       aimDir.y += 10f;
       
       if (NetworkManager.Singleton.IsServer) {
-        ReleaseSpellClientRpc(aimDir, projSpawn, Vector3.zero);
+        ReleaseSpellClientRpc(element, aimDir, projSpawn, Vector3.zero);
       } else {
-        ClientReleaseSpellServerRpc(aimDir, projSpawn, Vector3.zero);
+        ClientReleaseSpellServerRpc(element, aimDir, projSpawn, Vector3.zero);
       }
     }
   }
@@ -165,22 +166,22 @@ private Vector3 pullStart;
     switch (elementSelected) {
       case "Fire":
         element = SpellElement.Fire;
-        fireSpell.SetActive(true);
         InitSpellCast();
         break;
       case "Water":
         element = SpellElement.Water;
-        genericSpell.SetActive(true);
+        InitSpellCast();
+        break;
+      case "Wind":
+        element = SpellElement.Wind;
         InitSpellCast();
         break;
       case "Earth":
         element = SpellElement.Earth;
-        genericSpell.SetActive(true);
         InitSpellCast();
         break;
       default:
-        element = SpellElement.Earth;
-        genericSpell.SetActive(true);
+        element = SpellElement.Aether;
         InitSpellCast();
         break;
     }
@@ -197,7 +198,8 @@ private Vector3 pullStart;
     // NOTE: hacky stuff here, need to move all specific spell logic into their own
     // polymorphic spell thingies
 
-    if (element != SpellElement.Fire) {
+    if (element != SpellElement.Fire && element != SpellElement.Wind) {
+      genericSpell.SetActive(true);
       castingState = 0;
       spellStart = genericSpell.transform.Find("Start").gameObject;
       spellStart.SetActive(true);
@@ -205,6 +207,7 @@ private Vector3 pullStart;
       spellCharge = genericSpell.transform.Find("Charge").gameObject;
       spellCharge.SetActive(false);
     } else {
+      fireSpell.SetActive(true);
       castingState = 1;
 
       // to simulate fire spawning around you, just flip scale to be left side randomly
@@ -256,9 +259,9 @@ private Vector3 pullStart;
       aimDir.y += 10f;
 
       if (NetworkManager.Singleton.IsServer) {
-        ReleaseSpellClientRpc(aimDir, projSpawn, Vector3.zero);
+        ReleaseSpellClientRpc(element, aimDir, projSpawn, Vector3.zero);
       } else {
-        ClientReleaseSpellServerRpc(aimDir, projSpawn, Vector3.zero);
+        ClientReleaseSpellServerRpc(element, aimDir, projSpawn, Vector3.zero);
       }
     }
 
@@ -295,15 +298,35 @@ private Vector3 pullStart;
   }
 
   [ServerRpc]
-  void ClientReleaseSpellServerRpc(Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDist = 0) {
-    ReleaseSpellClientRpc(aimDir, projSpawn, aimShift, pullDist);
+  void ClientReleaseSpellServerRpc(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDist = 0) {
+    ReleaseSpellClientRpc(elem, aimDir, projSpawn, aimShift, pullDist);
   }
 
     // TEMP: SHITE (note this dist maxes around .55 in this specific)
   [ClientRpc]
-  void ReleaseSpellClientRpc(Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDist = 0) {
+  void ReleaseSpellClientRpc(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDist = 0) {
     // Debug.Log("FIRE ZE MISSILE");
-    GameObject stone = Instantiate(Resources.Load("Projectile"), projSpawn, Quaternion.identity) as GameObject;
+    string projectilePrefab = "Projectile";
+
+    switch(elem) {
+      case SpellElement.Earth:
+        projectilePrefab += ".Green";
+        break;
+      case SpellElement.Wind:
+        projectilePrefab += ".Yellow";
+        break;
+      case SpellElement.Fire:
+        projectilePrefab += ".Red";
+        break;
+      case SpellElement.Water:
+        projectilePrefab += ".Blue";
+        break;
+      default: 
+        break;
+    }
+
+
+    GameObject stone = Instantiate(Resources.Load(projectilePrefab), projSpawn, Quaternion.identity) as GameObject;
 
     Rigidbody rBody = stone.GetComponent<Rigidbody>();
 
