@@ -102,7 +102,12 @@ private Vector3 pullStart;
         Vector3 targetPoint = camAim.GetPoint(100f);
         Vector3 aimDir = targetPoint - projSpawn;
         aimDir.y += 10f;
-        ReleaseSpellClientRpc(aimDir, projSpawn, aimShift, pullDistance);
+
+        if (NetworkManager.Singleton.IsServer) {
+          ReleaseSpellClientRpc(aimDir, projSpawn, aimShift, pullDistance);
+        } else {
+          ClientReleaseSpellServerRpc(aimDir, projSpawn, aimShift, pullDistance);
+        }
       }
     } else if(dir == 0) {
 
@@ -112,7 +117,12 @@ private Vector3 pullStart;
       Vector3 targetPoint = camAim.GetPoint(100f);
       Vector3 aimDir = targetPoint - projSpawn;
       aimDir.y += 10f;
-      ReleaseSpellClientRpc(aimDir, projSpawn, Vector3.zero);
+      
+      if (NetworkManager.Singleton.IsServer) {
+        ReleaseSpellClientRpc(aimDir, projSpawn, Vector3.zero);
+      } else {
+        ClientReleaseSpellServerRpc(aimDir, projSpawn, Vector3.zero);
+      }
     }
   }
 
@@ -244,7 +254,12 @@ private Vector3 pullStart;
       Vector3 targetPoint = camAim.GetPoint(100f);
       Vector3 aimDir = targetPoint - projSpawn;
       aimDir.y += 10f;
-      ReleaseSpellClientRpc(aimDir, projSpawn, Vector3.zero);
+
+      if (NetworkManager.Singleton.IsServer) {
+        ReleaseSpellClientRpc(aimDir, projSpawn, Vector3.zero);
+      } else {
+        ClientReleaseSpellServerRpc(aimDir, projSpawn, Vector3.zero);
+      }
     }
 
   }
@@ -277,6 +292,11 @@ private Vector3 pullStart;
       spellStart.SetActive(false);
       spellCharge.SetActive(false);
     }
+  }
+
+  [ServerRpc]
+  void ClientReleaseSpellServerRpc(Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDist = 0) {
+    ReleaseSpellClientRpc(aimDir, projSpawn, aimShift, pullDist);
   }
 
     // TEMP: SHITE (note this dist maxes around .55 in this specific)
