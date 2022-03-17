@@ -190,21 +190,23 @@ public class BodySourceView : MonoBehaviour {
       Transform jointObj = bodyGuy.transform.Find(jt.ToString()).transform;
       jointObj.localPosition = GetVector3FromJoint(sourceJoint);
 
+      // if(jt == Kinect.JointType.Head) {
+      //   // TESTING
+      //   Kinect.JointOrientation jo = body.JointOrientations[jt];
+
+      //   Debug.Log("X : " + jo.Orientation.X + "  Y: " + jo.Orientation.Y + "  Z: " + jo.Orientation.Z + "  W: " + jo.Orientation.W);
+      //   Vector3 joinOrient = new Quaternion(jo.Orientation.X * 10, jo.Orientation.Y * 10, jo.Orientation.Z * 10, jo.Orientation.W * 10) * jointObj.forward;
+      // }
+
       LineRenderer lr = jointObj.GetComponent<LineRenderer>();
 
       if (targetJoint.HasValue) {
         // source joint look dir
         Vector3 lookDir = GetVector3FromJoint(targetJoint.Value) - GetVector3FromJoint(sourceJoint);
 
-        // TESTING
-        Kinect.JointOrientation jo = body.JointOrientations[jt];
-
-        // Debug.Log("X : " + jo.Orientation.X + "  Y: " + jo.Orientation.Y + "  Z: " + jo.Orientation.Z + "  W: " + jo.Orientation.W);
-        Vector3 joinOrient = new Quaternion(jo.Orientation.X * 10, jo.Orientation.Y * 10, jo.Orientation.Z * 10, jo.Orientation.W * 10) * jointObj.forward;
-
         lr.SetPosition(0, jointObj.localPosition);
-        lr.SetPosition(1, jointObj.localPosition + joinOrient.normalized);
-                // lr.SetPosition(1, jointObj.localPosition + lookDir);
+        // lr.SetPosition(1, jointObj.localPosition + joinOrient.normalized);
+        lr.SetPosition(1, jointObj.localPosition + lookDir);
         lr.SetColors(GetColorForState(sourceJoint.TrackingState), GetColorForState(targetJoint.Value.TrackingState));
       } else {
         lr.enabled = false;
