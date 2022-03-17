@@ -97,8 +97,22 @@ private Vector3 pullStart;
         waitForShootBtn = false;
         bowState = BowState.None;
 
-        ReleaseSpellServerRpc(aimShift, pullDistance);
+        Vector3 projSpawn = spellStart.transform.position;
+        Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
+        Vector3 targetPoint = camAim.GetPoint(100f);
+        Vector3 aimDir = targetPoint - projSpawn;
+        aimDir.y += 10f;
+        ReleaseSpellClientRpc(aimDir, projSpawn, aimShift, pullDistance);
       }
+    } else if(dir == 0) {
+
+      Vector3 projSpawn = transform.position;
+      projSpawn.y += 1.5f;
+      Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
+      Vector3 targetPoint = camAim.GetPoint(100f);
+      Vector3 aimDir = targetPoint - projSpawn;
+      aimDir.y += 10f;
+      ReleaseSpellClientRpc(aimDir, projSpawn, Vector3.zero);
     }
   }
 
@@ -224,8 +238,13 @@ private Vector3 pullStart;
       // turn off all spells for now, should be handled with polymorphic spells
       genericSpell.SetActive(false);
       fireSpell.SetActive(false);
-  
-      ReleaseSpellServerRpc(Vector3.zero);
+
+      Vector3 projSpawn = spellStart.transform.position;
+      Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
+      Vector3 targetPoint = camAim.GetPoint(100f);
+      Vector3 aimDir = targetPoint - projSpawn;
+      aimDir.y += 10f;
+      ReleaseSpellClientRpc(aimDir, projSpawn, Vector3.zero);
     }
 
   }
@@ -261,16 +280,12 @@ private Vector3 pullStart;
   }
 
     // TEMP: SHITE (note this dist maxes around .55 in this specific)
-  [ServerRpc]
-  private async void ReleaseSpellServerRpc(Vector3 aimShift, float pullDist = 0) {
+  [ClientRpc]
+  void ReleaseSpellClientRpc(Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDist = 0) {
     // Debug.Log("FIRE ZE MISSILE");
-    GameObject stone = Instantiate(Resources.Load("Projectile"), spellStart.transform.position, Quaternion.identity) as GameObject;
+    GameObject stone = Instantiate(Resources.Load("Projectile"), projSpawn, Quaternion.identity) as GameObject;
 
     Rigidbody rBody = stone.GetComponent<Rigidbody>();
-    Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
-    Vector3 targetPoint = camAim.GetPoint(100f);
-    Vector3 aimDir = targetPoint - stone.transform.position;
-    aimDir.y += 10f;
 
     float force = 20f;
 
@@ -285,6 +300,5 @@ private Vector3 pullStart;
 
     // NOTE: just a catch to clean up for now
     Destroy(stone, 20f);
-
   }
 }

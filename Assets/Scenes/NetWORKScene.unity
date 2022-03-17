@@ -187,7 +187,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7783707, y: 1}
+    m_SensorSize: {x: 1.753495, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -346,7 +346,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7783707, y: 1}
+    m_SensorSize: {x: 1.753495, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -423,7 +423,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7783707, y: 1}
+    m_SensorSize: {x: 1.753495, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -439,7 +439,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 380467579}
-  m_LocalRotation: {x: 0.08452786, y: -0.21227305, z: 0.018433819, w: 0.97337323}
+  m_LocalRotation: {x: 0.08452787, y: -0.21227303, z: 0.018433817, w: 0.97337323}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -617,7 +617,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 646679290}
-  m_LocalRotation: {x: 0.06680872, y: -0.2125732, z: 0.014569627, w: 0.9747497}
+  m_LocalRotation: {x: 0.06680872, y: -0.21257323, z: 0.014569628, w: 0.9747497}
   m_LocalPosition: {x: 1.6654325, y: -3, z: -3.636803}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1176,7 +1176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookCam: {fileID: 55116164}
-  debugHost: 1
+  debugHost: 0
 --- !u!4 &1601376441
 Transform:
   m_ObjectHideFlags: 0
@@ -1287,7 +1287,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7783707, y: 1}
+    m_SensorSize: {x: 1.753495, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -1303,7 +1303,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1945537845}
-  m_LocalRotation: {x: 0.06680872, y: -0.2125732, z: 0.014569632, w: 0.9747497}
+  m_LocalRotation: {x: 0.06680872, y: -0.21257323, z: 0.014569634, w: 0.9747497}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1548,7 +1548,7 @@ MonoBehaviour:
   MessageBufferSize: 5120
   MaxConnections: 100
   MaxSentMessageQueueSize: 128
-  ConnectAddress: 127.0.0.1
+  ConnectAddress: 192.168.1.7
   ConnectPort: 7777
   ServerListenPort: 7777
   MessageSendMode: 0
