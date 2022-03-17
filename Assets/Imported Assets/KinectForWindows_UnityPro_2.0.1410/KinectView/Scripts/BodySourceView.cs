@@ -5,6 +5,7 @@ using UnityEngine;
 using Kinect = Windows.Kinect;
 
 public class BodySourceView : MonoBehaviour {
+  public int layerToRender = 5;
   /// TEST WORKING
   public Vector3 leftShoulderAim;
   public Vector3 rightShoulderAim;
@@ -161,6 +162,7 @@ public class BodySourceView : MonoBehaviour {
 
     for (Kinect.JointType jt = Kinect.JointType.SpineBase; jt <= Kinect.JointType.ThumbRight; jt++) {
       GameObject jointObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+      jointObj.layer = layerToRender;
 
       LineRenderer lr = jointObj.AddComponent<LineRenderer>();
       lr.SetVertexCount(2);
@@ -201,8 +203,8 @@ public class BodySourceView : MonoBehaviour {
         Vector3 testDir = new Quaternion(jo.Orientation.X * 10, jo.Orientation.Y * 10, jo.Orientation.Z * 10, jo.Orientation.W * 10) * jointObj.forward;
 
         lr.SetPosition(0, jointObj.localPosition);
-        lr.SetPosition(1, jointObj.localPosition + testDir.normalized);
-        // lr.SetPosition(1, jointObj.localPosition + lookDir.normalized);
+        // lr.SetPosition(1, jointObj.localPosition + testDir.normalized);
+        lr.SetPosition(1, jointObj.localPosition + lookDir);
         lr.SetColors(GetColorForState(sourceJoint.TrackingState), GetColorForState(targetJoint.Value.TrackingState));
       } else {
         lr.enabled = false;
