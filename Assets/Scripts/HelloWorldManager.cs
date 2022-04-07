@@ -66,8 +66,8 @@ namespace HelloWorld {
     static void SpawnPlayerObject(ulong clientId) {
       // TEST: trying manual spawning
       GameObject pp = Instantiate(Resources.Load("Avatar"), Vector3.zero - (Vector3.up * 5f), Quaternion.identity) as GameObject;
-      pp.GetComponent<HelloWorldPlayer>().SetPlayerNumber(numPlayers);
       pp.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
+      pp.GetComponent<HelloWorldPlayer>().SetPlayerNumber(numPlayers);
     }
 
     static void ApprovalCheck(byte[] connectionData, ulong clientId, NetworkManager.ConnectionApprovedDelegate callback) {

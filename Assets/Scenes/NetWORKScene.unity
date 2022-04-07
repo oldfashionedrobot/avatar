@@ -1993,7 +1993,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookCam: {fileID: 55116164}
-  debugHost: 1
+  debugHost: 0
 --- !u!4 &1601376441
 Transform:
   m_ObjectHideFlags: 0
@@ -2421,7 +2421,7 @@ MonoBehaviour:
   MessageBufferSize: 5120
   MaxConnections: 100
   MaxSentMessageQueueSize: 128
-  ConnectAddress: 192.168.1.7
+  ConnectAddress: 127.0.0.1
   ConnectPort: 7777
   ServerListenPort: 7777
   MessageSendMode: 0

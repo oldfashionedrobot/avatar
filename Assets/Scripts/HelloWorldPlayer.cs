@@ -83,9 +83,17 @@ namespace HelloWorld {
     }
 
     public void SetPlayerNumber(int num) {
+      if (NetworkManager.Singleton.IsServer) {
+        SetPlayerNumClientRpc(num);
+      } 
+    }
+
+    [ClientRpc]
+    void SetPlayerNumClientRpc(int num) {
+      Debug.Log(num);
       playerModel1.SetActive(false);
 
-      switch(num) {
+      switch (num) {
         case 2:
           playerModel2.SetActive(true);
           break;
@@ -107,17 +115,9 @@ namespace HelloWorld {
     }
 
     private void OnAnimatorMove() {
-      if (NetworkManager.Singleton.IsServer) {
-        transform.position = transform.position + anim.deltaPosition;
-      } else {
-        MakeMeMoveServerRpc(transform.position + anim.deltaPosition);
-      }
+      transform.position = transform.position + anim.deltaPosition;
     }
 
-    [ServerRpc]
-    void MakeMeMoveServerRpc(Vector3 dest) {
-
-    }
 
     private void OnEnable() {
       if (m_buttonAction != null) m_buttonAction.Enable();
