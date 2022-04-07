@@ -176,7 +176,7 @@ private Vector3 pullStart;
   }
 
   void OnEnable() {
-    numCharges = 3;
+    numCharges = 0;
     state = SpellState.None;
     bowState = BowState.None;
     waitForShootBtn = false;
