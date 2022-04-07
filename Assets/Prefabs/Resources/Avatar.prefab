@@ -761,9 +761,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Weight: 1
   m_Data:
-    m_Root: {fileID: 0}
-    m_Mid: {fileID: 0}
-    m_Tip: {fileID: 0}
+    m_Root: {fileID: 7470927403345587300}
+    m_Mid: {fileID: 7470956746949389668}
+    m_Tip: {fileID: 7471799219580635808}
     m_Target: {fileID: 6813375418727580445}
     m_Hint: {fileID: 6104555709523763472}
     m_TargetPositionWeight: 1
@@ -803,7 +803,7 @@ MonoBehaviour:
     m_SourceObjects:
       m_Length: 1
       m_Item0:
-        transform: {fileID: 0}
+        transform: {fileID: 7470927403345587300}
         weight: 1
       m_Item1:
         transform: {fileID: 0}
@@ -942,9 +942,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Weight: 1
   m_Data:
-    m_Root: {fileID: 0}
-    m_Mid: {fileID: 0}
-    m_Tip: {fileID: 0}
+    m_Root: {fileID: 7470925888069130178}
+    m_Mid: {fileID: 7471247341827181506}
+    m_Tip: {fileID: 7471653529319955112}
     m_Target: {fileID: 1540154127142464620}
     m_Hint: {fileID: 1253154789039885388}
     m_TargetPositionWeight: 1
@@ -972,7 +972,7 @@ MonoBehaviour:
     m_SourceObjects:
       m_Length: 1
       m_Item0:
-        transform: {fileID: 0}
+        transform: {fileID: 7470925888069130178}
         weight: 1
       m_Item1:
         transform: {fileID: 0}
@@ -1863,10 +1863,13 @@ MonoBehaviour:
   leftArmIKHint: {fileID: 1253154789039885388}
   spineIKRoot: {fileID: 7475865457588775022}
   spineIKTarget: {fileID: 7475865457142053965}
+  playerModel1: {fileID: 7474808406307874226}
+  playerModel2: {fileID: 7474083512970728190}
+  playerModel3: {fileID: 7474485530939623672}
+  playerModel4: {fileID: 7474602521530171344}
   leftHandTouch: {fileID: 7475865457394118325}
   rightHandTouch: {fileID: 7475865457394118320}
   spellStuff: {fileID: 721416327961045426}
-  camOffsetScript: {fileID: 0}
 --- !u!114 &7475865457394118324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2050,7 +2053,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7471333718614875626
 Transform:
   m_ObjectHideFlags: 0
@@ -3682,7 +3685,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7471174023323138938
 Transform:
   m_ObjectHideFlags: 0
@@ -4119,8 +4122,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Weight: 1
   m_Data:
-    m_Root: {fileID: 0}
-    m_Tip: {fileID: 0}
+    m_Root: {fileID: 7471846445324838232}
+    m_Tip: {fileID: 7471264001801282910}
     m_Target: {fileID: 7475865457142053965}
     m_ChainRotationWeight: 0.727
     m_TipRotationWeight: 1

@@ -11,6 +11,7 @@ namespace HelloWorld {
     [SerializeField] private bool debugDrive = false;
 
     private NetworkVariable<bool> z_runtimeRigOn = new NetworkVariable<bool>(false);
+    private NetworkVariable<int> z_playerNum = new NetworkVariable<int>(0);
 
     private Animator anim;
     private Camera mainCam;
@@ -29,6 +30,11 @@ namespace HelloWorld {
     [SerializeField] private Transform spineIKRoot;
     [SerializeField] private Transform spineIKTarget;
 
+    [SerializeField] private GameObject playerModel1; 
+    [SerializeField] private GameObject playerModel2; 
+    [SerializeField] private GameObject playerModel3; 
+    [SerializeField] private GameObject playerModel4; 
+
     protected InputAction m_buttonAction;
     protected InputAction m_dPadAction;
     protected InputAction m_stickMoveAction;
@@ -43,7 +49,7 @@ namespace HelloWorld {
     public Collider leftHandTouch;
     public Collider rightHandTouch;
     public SpellTest spellStuff;
-    public CinemachineCameraOffset camOffsetScript;
+    private CinemachineCameraOffset camOffsetScript;
 
     private bool shootingMode = false;
     /// END TESTING SPELL
@@ -73,6 +79,25 @@ namespace HelloWorld {
           binding: "<Gamepad>/<stick>");
         m_stickMoveAction.performed += callbackContext => StickMove(callbackContext.control as StickControl);
         m_stickMoveAction.Enable();
+      }
+    }
+
+    public void SetPlayerNumber(int num) {
+      playerModel1.SetActive(false);
+
+      switch(num) {
+        case 2:
+          playerModel2.SetActive(true);
+          break;
+        case 3:
+          playerModel3.SetActive(true);
+          break;
+        case 4:
+          playerModel4.SetActive(true);
+          break;
+        default:
+          playerModel1.SetActive(true);
+          break;
       }
     }
 
@@ -329,7 +354,7 @@ namespace HelloWorld {
       return -forward * dir.z + right * dir.x + up * dir.y;
     }
 
-    private void ActivateBodyDrive() {
+    protected void ActivateBodyDrive() {
       // Debug.Log("activate body drive");
       if (NetworkManager.Singleton.IsServer) {
         z_runtimeRigOn.Value = true;
@@ -339,7 +364,7 @@ namespace HelloWorld {
       }
     }
 
-    private void DeactivateBodyDrive() {
+    protected void DeactivateBodyDrive() {
       // Debug.Log("deactivate body drive");
       if (NetworkManager.Singleton.IsServer) {
         z_runtimeRigOn.Value = false;

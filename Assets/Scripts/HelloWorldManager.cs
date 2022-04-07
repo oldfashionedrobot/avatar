@@ -11,6 +11,10 @@ namespace HelloWorld {
     [Tooltip("Automatically start as Host")]
     [SerializeField] private bool debugHost = false;
 
+
+    // HOST managed state vars
+    private static int numPlayers = 0;
+
     void OnGUI() {
       GUILayout.BeginArea(new Rect(10, 10, 300, 300));
       if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer) {
@@ -62,6 +66,7 @@ namespace HelloWorld {
     static void SpawnPlayerObject(ulong clientId) {
       // TEST: trying manual spawning
       GameObject pp = Instantiate(Resources.Load("Avatar"), Vector3.zero - (Vector3.up * 5f), Quaternion.identity) as GameObject;
+      pp.GetComponent<HelloWorldPlayer>().SetPlayerNumber(numPlayers);
       pp.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
     }
 
@@ -81,6 +86,10 @@ namespace HelloWorld {
       uint? _prefabHash = null;
       Vector3? _positionToSpawnAt = null;
       Quaternion? _rotationToSpawnWith = null;
+
+      /// NOTE: only real functionahere!!!!!!!!!!!
+      numPlayers += 1;
+      //dfsfsdfsdfsd
 
       //If approve is true, the connection gets added. If it's false. The client gets disconnected
       callback(createPlayerObject, _prefabHash, approve, _positionToSpawnAt, _rotationToSpawnWith);
