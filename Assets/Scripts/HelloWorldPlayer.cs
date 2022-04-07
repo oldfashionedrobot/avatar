@@ -329,6 +329,26 @@ namespace HelloWorld {
       return -forward * dir.z + right * dir.x + up * dir.y;
     }
 
+    private void ActivateBodyDrive() {
+      // Debug.Log("activate body drive");
+      if (NetworkManager.Singleton.IsServer) {
+        z_runtimeRigOn.Value = true;
+      } else {
+        SetBodyDriveServerRPC(true);
+        runtimeRigOn = true;
+      }
+    }
+
+    private void DeactivateBodyDrive() {
+      // Debug.Log("deactivate body drive");
+      if (NetworkManager.Singleton.IsServer) {
+        z_runtimeRigOn.Value = false;
+      } else {
+        SetBodyDriveServerRPC(false);
+        runtimeRigOn = false;
+      }
+    }
+
     /// pulled from input examples
     protected virtual void OnControllerButtonPress(ButtonControl control, string dpadName = null, bool isXbox = false, bool isPS = false) {
       string buttonName = control.name;
@@ -395,21 +415,9 @@ namespace HelloWorld {
 
       // check what buttons pressed
       if (buttonName == "North") {
-        // Debug.Log("activate body drive");
-        if (NetworkManager.Singleton.IsServer) {
-          z_runtimeRigOn.Value = true;
-        } else {
-          SetBodyDriveServerRPC(true);
-          runtimeRigOn = true;
-        }
+        ActivateBodyDrive();
       } else if (buttonName == "West") {
-        // Debug.Log("deactivate body drive");
-        if (NetworkManager.Singleton.IsServer) {
-          z_runtimeRigOn.Value = false;
-        } else {
-          SetBodyDriveServerRPC(false);
-          runtimeRigOn = false;
-        }
+        DeactivateBodyDrive();
       }
 
       if (button == null)
