@@ -7,11 +7,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1121720896150666920, guid: b75490bdafda1de4195a6b601b232376,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 951099334
+      objectReference: {fileID: 0}
     - target: {fileID: 3730002708745466145, guid: b75490bdafda1de4195a6b601b232376,
         type: 3}
       propertyPath: m_Name
-      value: Projectile.Red 3
+      value: Projectile.Green
       objectReference: {fileID: 0}
+    - target: {fileID: 3730002708745466146, guid: b75490bdafda1de4195a6b601b232376,
+        type: 3}
+      propertyPath: hitFX
+      value: 
+      objectReference: {fileID: 118086, guid: 0b4783e4abed86a40961a2180adca3b0, type: 3}
     - target: {fileID: 3730002708745466159, guid: b75490bdafda1de4195a6b601b232376,
         type: 3}
       propertyPath: m_RootOrder

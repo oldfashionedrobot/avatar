@@ -7,6 +7,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1121720896150666920, guid: b75490bdafda1de4195a6b601b232376,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 951099334
+      objectReference: {fileID: 0}
     - target: {fileID: 229074249826576774, guid: b75490bdafda1de4195a6b601b232376,
         type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
@@ -117,6 +122,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Projectile.Yellow
       objectReference: {fileID: 0}
+    - target: {fileID: 3730002708745466146, guid: b75490bdafda1de4195a6b601b232376,
+        type: 3}
+      propertyPath: hitFX
+      value: 
+      objectReference: {fileID: 133064, guid: 1de8b42c6540de34fb2c324a58c34a18, type: 3}
     - target: {fileID: 3730002708745466159, guid: b75490bdafda1de4195a6b601b232376,
         type: 3}
       propertyPath: m_RootOrder

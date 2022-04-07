@@ -7,6 +7,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1121720896150666920, guid: b75490bdafda1de4195a6b601b232376,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 951099334
+      objectReference: {fileID: 0}
     - target: {fileID: 1422522082937626514, guid: b75490bdafda1de4195a6b601b232376,
         type: 3}
       propertyPath: m_IsActive
@@ -17,6 +22,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Projectile.Blue
       objectReference: {fileID: 0}
+    - target: {fileID: 3730002708745466146, guid: b75490bdafda1de4195a6b601b232376,
+        type: 3}
+      propertyPath: hitFX
+      value: 
+      objectReference: {fileID: 137586, guid: 0a73ef3872695c14c87225f786afcf7a, type: 3}
     - target: {fileID: 3730002708745466159, guid: b75490bdafda1de4195a6b601b232376,
         type: 3}
       propertyPath: m_RootOrder

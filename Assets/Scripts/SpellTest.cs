@@ -39,7 +39,7 @@ public class SpellTest : NetworkBehaviour {
 
   private SpellState state = SpellState.None;
   private BowState bowState = BowState.None;
-  private SpellElement element = SpellElement.Wind;
+  private SpellElement element = SpellElement.Earth;
 
   private int numCharges = 0;
 
@@ -78,9 +78,9 @@ public class SpellTest : NetworkBehaviour {
   }
 
   public bool ActivateBowAction(Action cleanupCb) {
-    // if(numCharges < 1) {
-    //   return false;
-    // }
+    if(numCharges < 1) {
+      return false;
+    }
 
     cleanupCallback = cleanupCb;
 
@@ -113,23 +113,11 @@ private Vector3 pullStart;
         waitForShootBtn = false;
         bowState = BowState.None;
    
-
         Vector3 projSpawn = spellStart.transform.position;
-        Vector3 aimDir;
-        Transform tgt = GameObject.FindObjectOfType<HelloWorldPlayer>().target;
-
-        if(tgt != null) {
-          // shoot at current target
-          aimDir = (tgt.position - projSpawn).normalized * 100f;
-        } else {
-          Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .5f), (Screen.height * .5f), 0));
-          Vector3 targetPoint = camAim.GetPoint(100f);
-          aimDir = targetPoint - projSpawn;
-        }
-
-        aimDir.y += 10f;
+        Vector3 tgt = GameObject.FindObjectOfType<HelloWorldPlayer>().target.position + (Vector3.up * 3f);
 
         if (NetworkManager.Singleton.IsServer) {
+          // clear charge effect?
           SetChargeEffectsClientRpc(element, 0);
         } else {
           ClientSetChargeEffectsServerRpc(element, 0);
@@ -137,11 +125,11 @@ private Vector3 pullStart;
         
         // fire projectile for each charge
         for(int i = 0; i < numCharges; i++) {
-          StartCoroutine(DelayFire(element, aimDir, projSpawn, aimShift, pullDistance, i * 0.1f));
+          StartCoroutine(DelayFire(element, projSpawn, tgt, aimShift, pullDistance, i * 0.2f));
         }
 
         // consume charges
-        numCharges = 0;
+        // numCharges = 0;
 
         cleanupCallback();
       }
@@ -162,15 +150,16 @@ private Vector3 pullStart;
     }
   }
 
-  IEnumerator DelayFire(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, float aimShift, float pullDistance = 0, float delayTime = 0) {
+  IEnumerator DelayFire(SpellElement elem, Vector3 projSpawn, Vector3 target, float aimShift, float pullDistance = 0, float delayTime = 0) {
     //Wait for the specified delay time before continuing.
     yield return new WaitForSeconds(delayTime);
 
-    Debug.Log("firing");
     if (NetworkManager.Singleton.IsServer) {
-      ReleaseSpellClientRpc(element, aimDir, projSpawn, aimShift, pullDistance);
+      // spawn
+      ReleaseSpell(elem, projSpawn, target, aimShift, pullDistance);
     } else {
-      ClientReleaseSpellServerRpc(element, aimDir, projSpawn, aimShift, pullDistance);
+      // rpc to sever
+      ReleaseSpellServerRpc(elem, projSpawn, target, aimShift, pullDistance);
     }
 
     //Do the action after the delay time has finished.
@@ -187,7 +176,7 @@ private Vector3 pullStart;
   }
 
   void OnEnable() {
-    numCharges = 0;
+    numCharges = 3;
     state = SpellState.None;
     bowState = BowState.None;
     waitForShootBtn = false;
@@ -434,13 +423,12 @@ private Vector3 pullStart;
   }
 
   [ServerRpc]
-  void ClientReleaseSpellServerRpc(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, float aimShift, float pullDist = 0) {
-    ReleaseSpellClientRpc(elem, aimDir, projSpawn, aimShift, pullDist);
+  void ReleaseSpellServerRpc(SpellElement elem, Vector3 projSpawn, Vector3 target, float aimShift, float pullDist = 0) {
+    ReleaseSpell(elem, projSpawn, target, aimShift, pullDist);
   }
 
-    // TEMP: SHITE (note this dist maxes around .55 in this specific)
-  [ClientRpc]
-  void ReleaseSpellClientRpc(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, float aimShift, float pullDist = 0) {
+
+  void ReleaseSpell(SpellElement elem, Vector3 projSpawn, Vector3 target, float aimShift, float pullDist = 0) {
     // Debug.Log("FIRE ZE MISSILE");
     string projectilePrefab = "Projectile";
 
@@ -462,22 +450,12 @@ private Vector3 pullStart;
     }
 
 
-    GameObject stone = Instantiate(Resources.Load(projectilePrefab), projSpawn, Quaternion.identity) as GameObject;
+    GameObject projectile = Instantiate(Resources.Load(projectilePrefab), projSpawn, Quaternion.identity) as GameObject;
+    projectile.GetComponent<NetworkObject>().Spawn();
 
-    Rigidbody rBody = stone.GetComponent<Rigidbody>();
-
-    float force = 20f;
-
-    /// TEMP mod the projectile based on bow
-    if(pullDist > 0) {
-      // Debug.Log(aimShift);
-      force = pullDist * 2f * force;
-      aimDir.y += aimShift * 10f;
-    } 
-
-    rBody.AddForce(aimDir * force);
+    projectile.GetComponent<Projectile>().Launch(target, pullDist, aimShift);
 
     // NOTE: just a catch to clean up for now
-    Destroy(stone, 20f);
+    Destroy(projectile, 20f);
   }
 }
