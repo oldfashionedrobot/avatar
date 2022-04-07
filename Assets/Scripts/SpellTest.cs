@@ -129,7 +129,7 @@ private Vector3 pullStart;
         }
 
         // consume charges
-        // numCharges = 0;
+        numCharges = 0;
 
         cleanupCallback();
       }
