@@ -354,6 +354,23 @@ namespace HelloWorld {
       return -forward * dir.z + right * dir.x + up * dir.y;
     }
 
+    protected void ActivateFireMode() {
+      spellStuff.ActivateBowAction(CancelSpellAction);
+      ActivateBodyDrive();
+      shootingMode = true;
+    }
+
+    protected void ActivateChargeMode() {
+      spellStuff.ActivateElementSelect(CancelSpellAction);
+      ActivateBodyDrive();
+    }
+
+    protected void CancelSpellAction() {
+      spellStuff.CancelAll();
+      DeactivateBodyDrive();
+      shootingMode = false;
+    }
+
     protected void ActivateBodyDrive() {
       // Debug.Log("activate body drive");
       if (NetworkManager.Singleton.IsServer) {
@@ -398,24 +415,18 @@ namespace HelloWorld {
         case "touchpadButton":
           Debug.Break();
           break;
+        case "leftShoulder":
+          ActivateChargeMode();
+          break;
         case "leftTrigger":
-          shootingMode = false;
+          CancelSpellAction();
+          break;
+        case "rightShoulder":
+          ActivateFireMode();
+
           break;
         case "rightTrigger":
           spellStuff.TakeShootButton(control.ReadValue());
-          break;
-        case "leftShoulder":
-          // Debug.Break();
-          // runtimeRigOn = true;'
-          // TEST ACTIVATE BOW 
-          spellStuff.ActivateBowAction();
-          shootingMode = true;
-
-          break;
-        case "rightShoulder":
-          // runtimeRigOn = false;
-          // TEST spell stuff
-          spellStuff.ActivateElementSelect();
           break;
         case "leftStick":
           if (NetworkManager.Singleton.IsServer) {
@@ -439,11 +450,11 @@ namespace HelloWorld {
       }
 
       // check what buttons pressed
-      if (buttonName == "North") {
-        ActivateBodyDrive();
-      } else if (buttonName == "West") {
-        DeactivateBodyDrive();
-      }
+      // if (buttonName == "North") {
+      //   ActivateBodyDrive();
+      // } else if (buttonName == "West") {
+      //   DeactivateBodyDrive();
+      // }
 
       if (button == null)
         return;

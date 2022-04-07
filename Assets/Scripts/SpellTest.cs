@@ -2,6 +2,7 @@ using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class SpellTest : NetworkBehaviour {
 
@@ -31,10 +32,15 @@ public class SpellTest : NetworkBehaviour {
   public GameObject genericSpell;
   public GameObject fireSpell;
   public GameObject bowAction;
+  public GameObject chargeEffects;
+
+  private Action cleanupCallback;
 
   private SpellState state = SpellState.None;
   private BowState bowState = BowState.None;
   private SpellElement element = SpellElement.Wind;
+
+  private int numCharges = 0;
 
   public void OnChildTriggerEntered(Collider other, GameObject triggered) {
     switch (state) {
@@ -54,9 +60,15 @@ public class SpellTest : NetworkBehaviour {
     }
   }
 
-  public bool ActivateElementSelect() {
+  public void CancelAll() {
+    OnDisable();
+  }
+
+  public bool ActivateElementSelect(Action cleanupCb) {
     // ActivateBowAction();
     // return false;
+
+    cleanupCallback = cleanupCb;
 
     if (state != SpellState.ElementSelect) {
       state = SpellState.ElementSelect;
@@ -67,7 +79,8 @@ public class SpellTest : NetworkBehaviour {
     }
   }
 
-  public bool ActivateBowAction() {
+  public bool ActivateBowAction(Action cleanupCb) {
+    cleanupCallback = cleanupCb;
 
     InitBowAction();
     return true;
@@ -97,18 +110,25 @@ private Vector3 pullStart;
 
         waitForShootBtn = false;
         bowState = BowState.None;
-
+   
         Vector3 projSpawn = spellStart.transform.position;
         Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
         Vector3 targetPoint = camAim.GetPoint(100f);
         Vector3 aimDir = targetPoint - projSpawn;
         aimDir.y += 10f;
 
+        // consume charges
+        numCharges = 0;
+
         if (NetworkManager.Singleton.IsServer) {
+          SetChargeEffectsClientRpc(numCharges);
           ReleaseSpellClientRpc(SpellElement.Aether, aimDir, projSpawn, aimShift, pullDistance);
         } else {
+          ClientSetChargeEffectsServerRpc(numCharges);
           ClientReleaseSpellServerRpc(SpellElement.Aether, aimDir, projSpawn, aimShift, pullDistance);
         }
+
+        cleanupCallback();
       }
     } else if(dir == 0) {
 
@@ -138,10 +158,11 @@ private Vector3 pullStart;
   }
 
   void OnEnable() {
+    numCharges = 0;
     state = SpellState.None;
     bowState = BowState.None;
-        waitForShootBtn = false;
-        heldDown = false;
+    waitForShootBtn = false;
+    heldDown = false;
     elementSelect.SetActive(false);
     genericSpell.SetActive(false);
     bowAction.SetActive(false);
@@ -150,8 +171,8 @@ private Vector3 pullStart;
   void OnDisable() {
     state = SpellState.None;
     bowState = BowState.None;
-        waitForShootBtn = false;
-        heldDown = false;
+    waitForShootBtn = false;
+    heldDown = false;
     elementSelect.SetActive(false);
     genericSpell.SetActive(false);
     bowAction.SetActive(false);
@@ -211,7 +232,7 @@ private Vector3 pullStart;
       castingState = 1;
 
       // to simulate fire spawning around you, just flip scale to be left side randomly
-      if (Random.value > 0.5f) {
+      if (UnityEngine.Random.value > 0.5f) {
         fireSpell.transform.localScale = new Vector3(-1, 1, 1);
       } else {
         fireSpell.transform.localScale = new Vector3(1, 1, 1);
@@ -238,31 +259,48 @@ private Vector3 pullStart;
       spellStart.SetActive(true);
       spellCharge.SetActive(false);
     } else if (castingState == 2 && triggered.name == "Start") {
-      // release the spell cast
-      castingState = 2;
-      spellStart.SetActive(false);
-      spellCharge.SetActive(false);
+      /// successful charge
+      numCharges += 1;
 
-      // reset to base state
-      castingState = 0;
-      state = SpellState.None;
-      elementSelect.SetActive(false);
-
-      // turn off all spells for now, should be handled with polymorphic spells
-      genericSpell.SetActive(false);
-      fireSpell.SetActive(false);
-
-      Vector3 projSpawn = spellStart.transform.position;
-      Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
-      Vector3 targetPoint = camAim.GetPoint(100f);
-      Vector3 aimDir = targetPoint - projSpawn;
-      aimDir.y += 10f;
-
-      if (NetworkManager.Singleton.IsServer) {
-        ReleaseSpellClientRpc(element, aimDir, projSpawn, Vector3.zero);
+      if (NetworkManager.Singleton.IsServer){
+        SetChargeEffectsClientRpc(numCharges);
       } else {
-        ClientReleaseSpellServerRpc(element, aimDir, projSpawn, Vector3.zero);
+        ClientSetChargeEffectsServerRpc(numCharges);
       }
+
+      if(numCharges < 3) {
+        InitSpellCast();
+      } else {
+        // release the spell cast
+        spellStart.SetActive(false);
+        spellCharge.SetActive(false);
+
+        // reset to base state
+        castingState = 0;
+        state = SpellState.None;
+        elementSelect.SetActive(false);
+
+        // turn off all spells for now, should be handled with polymorphic spells
+        genericSpell.SetActive(false);
+        fireSpell.SetActive(false);
+
+        cleanupCallback();
+      }
+
+
+
+      // Vector3 projSpawn = spellStart.transform.position;
+      // Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
+      // Vector3 targetPoint = camAim.GetPoint(100f);
+      // Vector3 aimDir = targetPoint - projSpawn;
+      // aimDir.y += 10f;
+
+
+      // if (NetworkManager.Singleton.IsServer) {
+      //   ReleaseSpellClientRpc(element, aimDir, projSpawn, Vector3.zero);
+      // } else {
+      //   ClientReleaseSpellServerRpc(element, aimDir, projSpawn, Vector3.zero);
+      // }
     }
 
   }
@@ -295,6 +333,73 @@ private Vector3 pullStart;
       spellStart.SetActive(false);
       spellCharge.SetActive(false);
     }
+  }
+
+  [ServerRpc]
+  void ClientSetChargeEffectsServerRpc(int chargeNumber) {
+    SetChargeEffectsClientRpc(chargeNumber);
+  }
+
+  [ClientRpc]
+  void SetChargeEffectsClientRpc(int chargeNumber) {
+    GameObject fx;
+    chargeEffects.SetActive(true);
+
+    switch(element) {
+      case SpellElement.Fire:
+        fx = chargeEffects.transform.Find("FireCharge").gameObject;
+        break;
+      case SpellElement.Earth:
+        fx = chargeEffects.transform.Find("EarthCharge").gameObject;
+        break;
+      case SpellElement.Wind:
+        fx = chargeEffects.transform.Find("WindCharge").gameObject;
+        break;
+      case SpellElement.Water:
+        fx = chargeEffects.transform.Find("WaterCharge").gameObject;
+        break;
+      default:
+        fx = chargeEffects.transform.Find("EarthCharge").gameObject;
+        break;  
+    }
+
+
+    switch(chargeNumber) {
+      case 0:
+        ClearChargeEffectsClientRpc();
+        break;
+      case 1:
+        fx.SetActive(true);
+        fx.transform.Find("Charge2").gameObject.SetActive(false);
+        fx.transform.Find("Charge3").gameObject.SetActive(false);
+        break;
+      case 2:
+        fx.SetActive(true);
+        fx.transform.Find("Charge2").gameObject.SetActive(true);
+        fx.transform.Find("Charge3").gameObject.SetActive(false);
+        break;
+      case 3:
+        fx.SetActive(true);
+        fx.transform.Find("Charge2").gameObject.SetActive(true);
+        fx.transform.Find("Charge3").gameObject.SetActive(true);
+        break;
+      default:
+        ClearChargeEffectsClientRpc();
+        break;
+    }
+  }
+
+  [ServerRpc]
+  void ClientClearChargeEffectsServerRpc() {
+    ClearChargeEffectsClientRpc();
+  }
+
+  [ClientRpc]
+  void ClearChargeEffectsClientRpc() {
+    foreach (Transform child in chargeEffects.transform)
+      child.gameObject.SetActive(false);
+
+    chargeEffects.SetActive(false);
   }
 
   [ServerRpc]
