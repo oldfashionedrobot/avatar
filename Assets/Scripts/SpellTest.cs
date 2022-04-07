@@ -65,9 +65,6 @@ public class SpellTest : NetworkBehaviour {
   }
 
   public bool ActivateElementSelect(Action cleanupCb) {
-    // ActivateBowAction();
-    // return false;
-
     cleanupCallback = cleanupCb;
 
     if (state != SpellState.ElementSelect) {
@@ -121,16 +118,19 @@ private Vector3 pullStart;
         Vector3 aimDir = targetPoint - projSpawn;
         aimDir.y += 10f;
 
+        if (NetworkManager.Singleton.IsServer) {
+          SetChargeEffectsClientRpc(element, 0);
+        } else {
+          ClientSetChargeEffectsServerRpc(element, 0);
+        }
+        
+        // fire projectile for each charge
+        for(int i = 0; i < numCharges; i++) {
+          StartCoroutine(DelayFire(element, aimDir, projSpawn, aimShift, pullDistance, i * 0.1f));
+        }
+
         // consume charges
         numCharges = 0;
-
-        if (NetworkManager.Singleton.IsServer) {
-          SetChargeEffectsClientRpc(element, numCharges);
-          ReleaseSpellClientRpc(element, aimDir, projSpawn, aimShift, pullDistance);
-        } else {
-          ClientSetChargeEffectsServerRpc(element, numCharges);
-          ClientReleaseSpellServerRpc(element, aimDir, projSpawn, aimShift, pullDistance);
-        }
 
         cleanupCallback();
       }
@@ -151,6 +151,20 @@ private Vector3 pullStart;
     }
   }
 
+  IEnumerator DelayFire(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDistance = 0, float delayTime = 0) {
+    //Wait for the specified delay time before continuing.
+    yield return new WaitForSeconds(delayTime);
+
+    Debug.Log("firing");
+    if (NetworkManager.Singleton.IsServer) {
+      ReleaseSpellClientRpc(element, aimDir, projSpawn, aimShift, pullDistance);
+    } else {
+      ClientReleaseSpellServerRpc(element, aimDir, projSpawn, aimShift, pullDistance);
+    }
+
+    //Do the action after the delay time has finished.
+  }
+
   // Start is called before the first frame update
   void Start() {
 
@@ -169,6 +183,7 @@ private Vector3 pullStart;
     heldDown = false;
     elementSelect.SetActive(false);
     genericSpell.SetActive(false);
+    fireSpell.SetActive(false);
     bowAction.SetActive(false);
   }
 
@@ -179,6 +194,7 @@ private Vector3 pullStart;
     heldDown = false;
     elementSelect.SetActive(false);
     genericSpell.SetActive(false);
+    fireSpell.SetActive(false);
     bowAction.SetActive(false);
   }
 

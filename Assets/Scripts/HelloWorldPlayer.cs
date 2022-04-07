@@ -49,6 +49,7 @@ namespace HelloWorld {
     public Collider leftHandTouch;
     public Collider rightHandTouch;
     public SpellTest spellStuff;
+    public GameObject bowModel;
     private CinemachineCameraOffset camOffsetScript;
 
     private bool shootingMode = false;
@@ -90,7 +91,6 @@ namespace HelloWorld {
 
     [ClientRpc]
     void SetPlayerNumClientRpc(int num) {
-      Debug.Log(num);
       playerModel1.SetActive(false);
 
       switch (num) {
@@ -247,7 +247,7 @@ namespace HelloWorld {
           Vector3 camFwd = mainCam.transform.forward;
           Vector3 lookDir = new Vector3(camFwd.x, 0f, camFwd.z);
 
-          camOffsetScript.m_Offset = Vector3.Lerp(camOffsetScript.m_Offset, new Vector3(0.4f, 0.1f, 1f), 20f * Time.deltaTime);
+          camOffsetScript.m_Offset = Vector3.Lerp(camOffsetScript.m_Offset, new Vector3(0.5f, 0.1f, 0.5f), 20f * Time.deltaTime);
 
           if (NetworkManager.Singleton.IsServer) {
             anim.SetFloat("speedX", 0f);
@@ -257,6 +257,7 @@ namespace HelloWorld {
             anim.SetFloat("speedX", 0f);
             SetRotationServerRPC(lookDir);
             transform.rotation = Quaternion.LookRotation(lookDir);
+
           }
         } else {
           Vector3 moveDir = GetInputDirectionByCamera(gamepad);
@@ -280,6 +281,18 @@ namespace HelloWorld {
           }
         }
       }
+    }
+
+    [ServerRpc]
+    void ClientToggleBowServerRpc(bool onOff)
+    {
+      ToggleBowClientRpc(onOff);
+    }
+
+    [ClientRpc]
+    void ToggleBowClientRpc(bool onOff)
+    {
+      bowModel.SetActive(onOff);
     }
 
     [ServerRpc]
@@ -358,6 +371,12 @@ namespace HelloWorld {
       if(spellStuff.ActivateBowAction(CancelSpellAction)) {
         ActivateBodyDrive();
         shootingMode = true;
+        bowModel.SetActive(true);
+        if(NetworkManager.Singleton.IsServer) {
+          ToggleBowClientRpc(true);
+        } else {
+          ClientToggleBowServerRpc(true);
+        }
       }
     }
 
@@ -370,6 +389,11 @@ namespace HelloWorld {
       spellStuff.CancelAll();
       DeactivateBodyDrive();
       shootingMode = false;
+      if (NetworkManager.Singleton.IsServer) {
+        ToggleBowClientRpc(false);
+      } else {
+        ClientToggleBowServerRpc(false);
+      }
     }
 
     protected void ActivateBodyDrive() {
