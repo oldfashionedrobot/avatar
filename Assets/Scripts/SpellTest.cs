@@ -80,6 +80,10 @@ public class SpellTest : NetworkBehaviour {
   }
 
   public bool ActivateBowAction(Action cleanupCb) {
+    if(numCharges < 1) {
+      return false;
+    }
+    
     cleanupCallback = cleanupCb;
 
     InitBowAction();

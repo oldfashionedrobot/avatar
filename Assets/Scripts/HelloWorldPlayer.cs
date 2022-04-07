@@ -355,9 +355,10 @@ namespace HelloWorld {
     }
 
     protected void ActivateFireMode() {
-      spellStuff.ActivateBowAction(CancelSpellAction);
-      ActivateBodyDrive();
-      shootingMode = true;
+      if(spellStuff.ActivateBowAction(CancelSpellAction)) {
+        ActivateBodyDrive();
+        shootingMode = true;
+      }
     }
 
     protected void ActivateChargeMode() {
