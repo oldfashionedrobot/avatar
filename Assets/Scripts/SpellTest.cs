@@ -108,7 +108,7 @@ private Vector3 pullStart;
 
         // shite to get the aim vert
         Vector3 leftHandPos = GameObject.Find("Hand_L").transform.position;
-        Vector3 aimShift = (leftHandPos - spellStart.transform.position);
+        float aimShift = (leftHandPos - spellStart.transform.position).y;
 
         waitForShootBtn = false;
         bowState = BowState.None;
@@ -121,7 +121,6 @@ private Vector3 pullStart;
         if(tgt != null) {
           // shoot at current target
           aimDir = (tgt.position - projSpawn).normalized * 100f;
-          aimDir.y += 10f;
         } else {
           Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .5f), (Screen.height * .5f), 0));
           Vector3 targetPoint = camAim.GetPoint(100f);
@@ -163,7 +162,7 @@ private Vector3 pullStart;
     }
   }
 
-  IEnumerator DelayFire(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDistance = 0, float delayTime = 0) {
+  IEnumerator DelayFire(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, float aimShift, float pullDistance = 0, float delayTime = 0) {
     //Wait for the specified delay time before continuing.
     yield return new WaitForSeconds(delayTime);
 
@@ -435,13 +434,13 @@ private Vector3 pullStart;
   }
 
   [ServerRpc]
-  void ClientReleaseSpellServerRpc(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDist = 0) {
+  void ClientReleaseSpellServerRpc(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, float aimShift, float pullDist = 0) {
     ReleaseSpellClientRpc(elem, aimDir, projSpawn, aimShift, pullDist);
   }
 
     // TEMP: SHITE (note this dist maxes around .55 in this specific)
   [ClientRpc]
-  void ReleaseSpellClientRpc(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, Vector3 aimShift, float pullDist = 0) {
+  void ReleaseSpellClientRpc(SpellElement elem, Vector3 aimDir, Vector3 projSpawn, float aimShift, float pullDist = 0) {
     // Debug.Log("FIRE ZE MISSILE");
     string projectilePrefab = "Projectile";
 
@@ -473,7 +472,7 @@ private Vector3 pullStart;
     if(pullDist > 0) {
       // Debug.Log(aimShift);
       force = pullDist * 2f * force;
-      aimDir += (aimShift * aimDir.magnitude);
+      aimDir.y += aimShift * 10f;
     } 
 
     rBody.AddForce(aimDir * force);

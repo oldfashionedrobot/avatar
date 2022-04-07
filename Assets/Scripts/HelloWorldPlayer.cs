@@ -267,7 +267,7 @@ namespace HelloWorld {
         } else {
           Vector3 moveDir = GetInputDirectionByCamera(gamepad);
 
-          camOffsetScript.m_Offset = Vector3.Lerp(camOffsetScript.m_Offset, Vector3.zero, 20f * Time.deltaTime); 
+          camOffsetScript.m_Offset = Vector3.Lerp(camOffsetScript.m_Offset, new Vector3(0.2f, 0, 0), 20f * Time.deltaTime); 
 
           if (NetworkManager.Singleton.IsServer) {
             anim.SetFloat("speedX", moveDir.magnitude);

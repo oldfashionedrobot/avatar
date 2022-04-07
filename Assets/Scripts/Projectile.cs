@@ -1,16 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Projectile : MonoBehaviour {
-  // Start is called before the first frame update
-  void Start() {
+public class Projectile : NetworkBehaviour {
 
-  }
-
-  // Update is called once per frame
-  void Update() {
+  public void Launch() {
 
   }
 }
