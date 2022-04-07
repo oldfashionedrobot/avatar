@@ -114,7 +114,7 @@ private Vector3 pullStart;
         bowState = BowState.None;
    
         Vector3 projSpawn = spellStart.transform.position;
-        Vector3 tgt = GameObject.FindObjectOfType<HelloWorldPlayer>().target.position + (Vector3.up * 3f);
+        Vector3 tgt = transform.parent.GetComponent<HelloWorldPlayer>().target.position + (Vector3.up * 3f);
 
         if (NetworkManager.Singleton.IsServer) {
           // clear charge effect?
@@ -176,7 +176,7 @@ private Vector3 pullStart;
   }
 
   void OnEnable() {
-    numCharges = 0;
+    numCharges = 3;
     state = SpellState.None;
     bowState = BowState.None;
     waitForShootBtn = false;

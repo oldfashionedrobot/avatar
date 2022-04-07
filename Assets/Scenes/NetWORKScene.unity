@@ -2455,7 +2455,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookCam: {fileID: 55116164}
-  debugHost: 1
+  debugHost: 0
 --- !u!4 &1601376441
 Transform:
   m_ObjectHideFlags: 0
