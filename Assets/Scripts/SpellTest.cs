@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using HelloWorld;
 
 public class SpellTest : NetworkBehaviour {
 
@@ -77,9 +78,9 @@ public class SpellTest : NetworkBehaviour {
   }
 
   public bool ActivateBowAction(Action cleanupCb) {
-    if(numCharges < 1) {
-      return false;
-    }
+    // if(numCharges < 1) {
+    //   return false;
+    // }
 
     cleanupCallback = cleanupCb;
 
@@ -112,10 +113,21 @@ private Vector3 pullStart;
         waitForShootBtn = false;
         bowState = BowState.None;
    
+
         Vector3 projSpawn = spellStart.transform.position;
-        Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
-        Vector3 targetPoint = camAim.GetPoint(100f);
-        Vector3 aimDir = targetPoint - projSpawn;
+        Vector3 aimDir;
+        Transform tgt = GameObject.FindObjectOfType<HelloWorldPlayer>().target;
+
+        if(tgt != null) {
+          // shoot at current target
+          aimDir = (tgt.position - projSpawn).normalized * 100f;
+          aimDir.y += 10f;
+        } else {
+          Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .5f), (Screen.height * .5f), 0));
+          Vector3 targetPoint = camAim.GetPoint(100f);
+          aimDir = targetPoint - projSpawn;
+        }
+
         aimDir.y += 10f;
 
         if (NetworkManager.Singleton.IsServer) {

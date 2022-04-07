@@ -53,6 +53,7 @@ namespace HelloWorld {
     private CinemachineCameraOffset camOffsetScript;
 
     private bool shootingMode = false;
+    public Transform target = null;
     /// END TESTING SPELL
 
     public override void OnNetworkSpawn() {
@@ -249,6 +250,10 @@ namespace HelloWorld {
 
           camOffsetScript.m_Offset = Vector3.Lerp(camOffsetScript.m_Offset, new Vector3(0.5f, 0.1f, 0.5f), 20f * Time.deltaTime);
 
+          /// targeting
+          AcquireTarget();
+          //
+
           if (NetworkManager.Singleton.IsServer) {
             anim.SetFloat("speedX", 0f);
             transform.rotation = Quaternion.LookRotation(lookDir);
@@ -279,6 +284,27 @@ namespace HelloWorld {
               transform.rotation = Quaternion.LookRotation(moveDir);
             }
           }
+        }
+      }
+    }
+
+    void AcquireTarget() {
+      Ray aimRay = mainCam.ScreenPointToRay(new Vector3(Screen.width / 2, (Screen.height / 2), 0));
+      RaycastHit hit;
+
+      if (Physics.Raycast(aimRay, out hit, 100)) {
+        if (hit.collider.tag == "Totem") {
+          if(target != null && target != hit.transform) {
+            target.Find("TargetFX").gameObject.SetActive(false);
+          }
+
+          target = hit.transform;
+          target.Find("TargetFX").gameObject.SetActive(true);
+        }
+      } else {
+        if(target != null) {
+          target.Find("TargetFX").gameObject.SetActive(false);
+          target = null;
         }
       }
     }
@@ -389,6 +415,12 @@ namespace HelloWorld {
       spellStuff.CancelAll();
       DeactivateBodyDrive();
       shootingMode = false;
+      
+      if(target != null) {
+        target.Find("TargetFX").gameObject.SetActive(false);
+        target = null;
+      }
+      
       if (NetworkManager.Singleton.IsServer) {
         ToggleBowClientRpc(false);
       } else {
