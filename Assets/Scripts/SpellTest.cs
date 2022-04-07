@@ -83,7 +83,7 @@ public class SpellTest : NetworkBehaviour {
     if(numCharges < 1) {
       return false;
     }
-    
+
     cleanupCallback = cleanupCb;
 
     InitBowAction();
@@ -125,11 +125,11 @@ private Vector3 pullStart;
         numCharges = 0;
 
         if (NetworkManager.Singleton.IsServer) {
-          SetChargeEffectsClientRpc(numCharges);
-          ReleaseSpellClientRpc(SpellElement.Aether, aimDir, projSpawn, aimShift, pullDistance);
+          SetChargeEffectsClientRpc(element, numCharges);
+          ReleaseSpellClientRpc(element, aimDir, projSpawn, aimShift, pullDistance);
         } else {
-          ClientSetChargeEffectsServerRpc(numCharges);
-          ClientReleaseSpellServerRpc(SpellElement.Aether, aimDir, projSpawn, aimShift, pullDistance);
+          ClientSetChargeEffectsServerRpc(element, numCharges);
+          ClientReleaseSpellServerRpc(element, aimDir, projSpawn, aimShift, pullDistance);
         }
 
         cleanupCallback();
@@ -267,9 +267,9 @@ private Vector3 pullStart;
       numCharges += 1;
 
       if (NetworkManager.Singleton.IsServer){
-        SetChargeEffectsClientRpc(numCharges);
+        SetChargeEffectsClientRpc(element, numCharges);
       } else {
-        ClientSetChargeEffectsServerRpc(numCharges);
+        ClientSetChargeEffectsServerRpc(element, numCharges);
       }
 
       if(numCharges < 3) {
@@ -340,16 +340,16 @@ private Vector3 pullStart;
   }
 
   [ServerRpc]
-  void ClientSetChargeEffectsServerRpc(int chargeNumber) {
-    SetChargeEffectsClientRpc(chargeNumber);
+  void ClientSetChargeEffectsServerRpc(SpellElement elem, int chargeNumber) {
+    SetChargeEffectsClientRpc(elem, chargeNumber);
   }
 
   [ClientRpc]
-  void SetChargeEffectsClientRpc(int chargeNumber) {
+  void SetChargeEffectsClientRpc(SpellElement elem, int chargeNumber) {
     GameObject fx;
     chargeEffects.SetActive(true);
 
-    switch(element) {
+    switch(elem) {
       case SpellElement.Fire:
         fx = chargeEffects.transform.Find("FireCharge").gameObject;
         break;
