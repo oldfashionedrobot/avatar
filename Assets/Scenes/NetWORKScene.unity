@@ -392,7 +392,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.2437829, y: 1}
+    m_SensorSize: {x: 1.2445487, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -620,7 +620,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.2437829, y: 1}
+    m_SensorSize: {x: 1.2445487, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -809,7 +809,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.2437829, y: 1}
+    m_SensorSize: {x: 1.2445487, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -833,6 +833,25 @@ Transform:
   m_Father: {fileID: 55116165}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &415293053 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 670322615224982421, guid: cd7ff5da21ce7114d8fc6bad4d4b8feb,
+    type: 3}
+  m_PrefabInstance: {fileID: 670322614561874487}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &415293054
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415293053}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 5.29, y: 0.5, z: 3.46}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &442992370
 GameObject:
   m_ObjectHideFlags: 0
@@ -2134,7 +2153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookCam: {fileID: 55116164}
-  debugHost: 0
+  debugHost: 1
 --- !u!4 &1601376441
 Transform:
   m_ObjectHideFlags: 0
@@ -2492,7 +2511,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.2437829, y: 1}
+    m_SensorSize: {x: 1.2445487, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
