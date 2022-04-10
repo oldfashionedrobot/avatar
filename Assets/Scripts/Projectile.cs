@@ -26,8 +26,15 @@ public class Projectile : NetworkBehaviour {
       if(other.tag == "Totem") {
         Destroy(gameObject);  
         SpawnHitFXClientRpc(this._target);
+      } else if(other.tag == "Defense") {
+        Debug.Log("HIT A " + other.gameObject.name);
+
+
+        SpawnHitFXClientRpc(other.transform.position);
+        Destroy(other.gameObject);
+        Destroy(gameObject);
       }
-     } 
+    } 
   }
 
   [ClientRpc]

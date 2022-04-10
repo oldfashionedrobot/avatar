@@ -135,18 +135,19 @@ private Vector3 pullStart;
       }
     } else if(dir == 0) {
 
-      // Vector3 projSpawn = transform.position;
-      // projSpawn.y += 1.5f;
-      // Ray camAim = Camera.main.ScreenPointToRay(new Vector3((Screen.width * .6f), (Screen.height * .6f), 0));
-      // Vector3 targetPoint = camAim.GetPoint(100f);
-      // Vector3 aimDir = targetPoint - projSpawn;
-      // aimDir.y += 10f;
-      
-      // if (NetworkManager.Singleton.IsServer) {
-      //   ReleaseSpellClientRpc(element, aimDir, projSpawn, Vector3.zero);
-      // } else {
-      //   ClientReleaseSpellServerRpc(element, aimDir, projSpawn, Vector3.zero);
-      // }
+      if(numCharges > 0) {
+        Vector3 defenseSpawn = transform.position + (Vector3.up * 0.1f);
+
+        numCharges -= 1;
+
+        if (NetworkManager.Singleton.IsServer) {
+          PlaceDefense(element, defenseSpawn);
+          SetChargeEffectsClientRpc(element, numCharges);
+        } else {
+          PlaceDefenseServerRpc(element, defenseSpawn);
+          ClientSetChargeEffectsServerRpc(element, numCharges);
+        }
+      }
     }
   }
 
@@ -457,5 +458,39 @@ private Vector3 pullStart;
 
     // NOTE: just a catch to clean up for now
     Destroy(projectile, 20f);
+  }
+
+  [ServerRpc]
+  void PlaceDefenseServerRpc(SpellElement elem, Vector3 spawn) {
+    PlaceDefense(elem, spawn);
+  }
+
+
+  void PlaceDefense(SpellElement elem, Vector3 spawn)
+  {
+    // Debug.Log("FIRE ZE MISSILE");
+    string prefab = "Defense";
+
+    switch (elem)
+    {
+      case SpellElement.Earth:
+        prefab += ".Green";
+        break;
+      case SpellElement.Wind:
+        prefab += ".Yellow";
+        break;
+      case SpellElement.Fire:
+        prefab += ".Red";
+        break;
+      case SpellElement.Water:
+        prefab += ".Blue";
+        break;
+      default:
+        break;
+    }
+
+
+    GameObject defense = Instantiate(Resources.Load(prefab), spawn, Quaternion.Euler(-90, 0, 0)) as GameObject;
+    defense.GetComponent<NetworkObject>().Spawn();
   }
 }

@@ -509,7 +509,7 @@ namespace HelloWorld {
           }
           break;
         default:
-          Debug.Log("NO MAPPED ACTION FOR: " + buttonName + btnVal);
+          // Debug.Log("NO MAPPED ACTION FOR: " + buttonName + btnVal);
           break;
       }
 

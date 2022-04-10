@@ -49503,7 +49503,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd0e9e17c148d6e4c936bb60fcd54dfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugDrive: 1
+  debugDrive: 0
   rig: {fileID: 170957639581586225}
   rightShoulderIKRoot: {fileID: 201185712681757005}
   rightArmIKTarget: {fileID: 6813375418727580445}

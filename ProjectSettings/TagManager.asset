@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Totem
   - Hand
+  - Defense
   layers:
   - Default
   - TransparentFX
