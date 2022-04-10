@@ -480,36 +480,43 @@ namespace HelloWorld {
           break;
         case "rightShoulder":
           ActivateFireMode();
-
           break;
         case "rightTrigger":
           spellStuff.TakeShootButton(control.ReadValue());
           break;
         case "leftStick":
-          if (NetworkManager.Singleton.IsServer) {
-            anim.SetBool("crouch", true);
-          } else {
-            SetAnimBoolServerRPC("crouch", true);
-            anim.SetBool("crouch", true);
+          if(btnVal == 1) {
+            bool newValue = false;
+            if(anim.GetBool("crouch") == false) {
+              newValue = true;
+            } 
+
+            if (NetworkManager.Singleton.IsServer) {
+              anim.SetBool("crouch", newValue);
+            } else {
+              SetAnimBoolServerRPC("crouch", newValue);
+              anim.SetBool("crouch", newValue);
+            }
           }
           break;
         case "rightStick":
-          if (NetworkManager.Singleton.IsServer) {
-            anim.SetBool("crouch", false);
-          } else {
-            SetAnimBoolServerRPC("crouch", false);
-            anim.SetBool("crouch", false);
+          if(btnVal == 1) {
+            if(z_runtimeRigOn.Value == true) {
+              DeactivateBodyDrive();
+            } else {
+              ActivateBodyDrive();
+            }
           }
           break;
         default:
-          // Debug.Log("NO MAPPED ACTION FOR: " + buttonName + control.ReadValue());
+          Debug.Log("NO MAPPED ACTION FOR: " + buttonName + btnVal);
           break;
       }
 
-      // check what buttons pressed
+      // // check what buttons pressed
       // if (buttonName == "North") {
       //   ActivateBodyDrive();
-      // } else if (buttonName == "West") {
+      // } else if (buttonName == "South") {
       //   DeactivateBodyDrive();
       // }
 

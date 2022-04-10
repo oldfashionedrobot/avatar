@@ -49443,9 +49443,10 @@ GameObject:
   - component: {fileID: 7475865457394118328}
   - component: {fileID: 7475865457394118329}
   - component: {fileID: 7475865457394118330}
+  - component: {fileID: 5753838312588252762}
   m_Layer: 0
   m_Name: Avatar
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -49520,6 +49521,7 @@ MonoBehaviour:
   rightHandTouch: {fileID: 7475865457394118320}
   spellStuff: {fileID: 721416327961045426}
   bowModel: {fileID: 6896533227992599320}
+  target: {fileID: 0}
 --- !u!114 &7475865457394118324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49594,6 +49596,20 @@ MonoBehaviour:
   - m_Rig: {fileID: 170957639581586225}
     m_Active: 1
   m_Effectors: []
+--- !u!136 &5753838312588252762
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7474013407268122570}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.3
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &7474036418932811168
 GameObject:
   m_ObjectHideFlags: 0
@@ -50048,7 +50064,7 @@ GameObject:
   - component: {fileID: 7475865457394118325}
   m_Layer: 0
   m_Name: Thumb_01
-  m_TagString: Untagged
+  m_TagString: Hand
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -50412,7 +50428,7 @@ GameObject:
   - component: {fileID: 7475865457394118320}
   m_Layer: 0
   m_Name: Thumb_01 1
-  m_TagString: Untagged
+  m_TagString: Hand
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
